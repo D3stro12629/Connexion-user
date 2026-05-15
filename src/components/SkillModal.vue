@@ -7,8 +7,8 @@
             <Zap :size="18" />
           </div>
           <div>
-            <h6 class="modal-title">Manage Skills</h6>
-            <p class="modal-sub">Select from existing or add a new skill</p>
+            <h6 class="modal-title">គ្រប់គ្រងជំនាញ</h6>
+            <p class="modal-sub">ជ្រើសរើសពីជំនាញដែលមានស្រាប់ ឬបន្ថែមជំនាញថ្មី។</p>
           </div>
           <button class="close-btn" @click="$emit('close')"><X :size="16" /></button>
         </div>
@@ -32,7 +32,7 @@
               v-model="search"
               type="text"
               class="search-input"
-              placeholder="Search skills…"
+              placeholder="ជំនាញស្វែងរក…"
             />
           </div>
 
@@ -61,7 +61,7 @@
                 v-model="newSkillName"
                 type="text"
                 class="f-input"
-                placeholder="Add a new skill…"
+                placeholder="បន្ថែមជំនាញថ្មី…"
                 @keydown.enter="addNewSkill"
               />
             </div>
@@ -73,11 +73,11 @@
         </div>
 
         <div class="modal-footer">
-          <button class="btn-cancel" @click="$emit('close')">Cancel</button>
+          <button class="btn-cancel" @click="$emit('close')">បោះបង់</button>
           <button class="btn-save" :disabled="saving" @click="save">
             <Loader2 v-if="saving" :size="14" class="spin" />
             <Check v-else :size="14" />
-            {{ saving ? 'Saving…' : 'Save Skills' }}
+            {{ saving ? 'Saving…' : 'រក្សាទុកជំនាញ' }}
           </button>
         </div>
       </div>

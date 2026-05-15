@@ -8,7 +8,7 @@
           </div>
           <div>
             <h6 class="modal-title">{{ existing ? 'Update Collaboration' : 'Add Collaboration' }}</h6>
-            <p class="modal-sub">Share your company logo and website</p>
+            <p class="modal-sub">ចែករំលែកនិមិត្តសញ្ញាក្រុមហ៊ុន និងគេហទំព័ររបស់អ្នក។</p>
           </div>
           <button class="close-btn" @click="$emit('close')"><X :size="16" /></button>
         </div>
@@ -16,7 +16,7 @@
         <div class="modal-body">
           <!-- Company Logo Upload -->
           <div class="field-group">
-            <label class="field-label">Company Logo</label>
+            <label class="field-label">និមិត្តសញ្ញាក្រុមហ៊ុន</label>
             <div
               class="logo-drop"
               :class="{ 'has-preview': previewUrl }"
@@ -27,11 +27,11 @@
               <img v-if="previewUrl" :src="previewUrl" class="logo-preview" />
               <div v-else class="logo-placeholder">
                 <ImagePlus :size="28" />
-                <p>Click or drag to upload logo</p>
-                <span>PNG, JPG up to 5MB</span>
+                <p>ចុច ឬអូស ដើម្បីបង្ហោះរូបសញ្ញា</p>
+                <span>PNG, JPG រហូតដល់ 5MB</span>
               </div>
               <div class="logo-overlay" v-if="previewUrl">
-                <Camera :size="18" /> Change
+                <Camera :size="18" /> ផ្លាស់ប្តូរ
               </div>
             </div>
             <input ref="logoInput" type="file" accept="image/*" hidden @change="onFileChange" />
@@ -39,7 +39,7 @@
 
           <!-- Company URL -->
           <div class="field-group">
-            <label class="field-label">Company / Portfolio URL</label>
+            <label class="field-label">ក្រុមហ៊ុន / ផលប័ត្រ URL</label>
             <div class="input-wrap">
               <Link2 :size="14" class="input-icon" />
               <input
@@ -53,11 +53,11 @@
         </div>
 
         <div class="modal-footer">
-          <button class="btn-cancel" @click="$emit('close')">Cancel</button>
+          <button class="btn-cancel" @click="$emit('close')">បោះបង់</button>
           <button class="btn-save" :disabled="saving || (!logoFile && !companyLink)" @click="submit">
             <Loader2 v-if="saving" :size="14" class="spin" />
             <Check v-else :size="14" />
-            {{ saving ? 'Saving…' : 'Save' }}
+            {{ saving ? 'Saving…' : 'រក្សាទុក' }}
           </button>
         </div>
       </div>

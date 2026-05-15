@@ -206,7 +206,7 @@ function userAvatar(user) {
           </div>
 
           <!-- RIGHT SIDEBAR -->
-          <div class="col-side">
+          <div class="col-side" >
             <div class="sidebar">
 
               <!-- Categories -->
