@@ -29,7 +29,10 @@
             </button>
             <Transition name="drop">
               <div v-if="showMenu" class="post-menu-dropdown">
-                <button class="post-menu-item" @click="handleEdit(); showMenu = false">
+                <!-- <button class="post-menu-item" @click="handleEdit(); showMenu = false">
+                  <i class="bi bi-pencil"></i> {{ t('postCard.edit') }}
+                </button> -->
+                  <button class="post-menu-item" @click="showModal(); showMenu = false">
                   <i class="bi bi-pencil"></i> {{ t('postCard.edit') }}
                 </button>
                 <button class="post-menu-item danger" @click="handleDelete(); showMenu = false">
@@ -106,7 +109,7 @@
                     <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.932z"/></svg>
                   </span>
                   Telegram
-                </a>
+                </a> 
                 <a :href="shareTwitter" target="_blank" class="share-item" @click="showShare = false">
                   <span class="share-icon tw">
                     <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
@@ -191,6 +194,10 @@
       </BaseModal>
     </div>
   </div>
+
+
+
+
 </template>
 
 <script setup>
@@ -199,9 +206,7 @@ import { useAuthStores } from '@/stores/auth'
 import { usePostStore } from '@/stores/post'
 import { useRouter } from 'vue-router'
 import BaseModal from './BaseModal.vue'
-
 const props = defineProps({ post: { type: Object, required: true } })
-
 const auth      = useAuthStores()
 const postStore = usePostStore()
 const router    = useRouter()
@@ -248,7 +253,9 @@ const showMenu = ref(false)
 const menuRef = ref(null)
 
 function t(key) {
+  
   const map = { 'postCard.edit': 'កែប្រែ', 'postCard.delete': 'លុប' }
+  console.log(map)
   return map[key] || key
 }
 
@@ -286,16 +293,19 @@ function formatDate(d) {
   return new Date(d).toLocaleDateString()
 }
 
-function handleEdit() {
-  router.push({
-    name: 'CreatePost',
-    query: {
-      edit: props.post.id,
-      from: router.currentRoute.value.fullPath,
-    },
-  })
+// function handleEdit() {
+//   router.push({
+//     name: 'CreatePost',
+//     query: {
+//       edit: props.post.id,
+//       from: router.currentRoute.value.fullPath,
+//     },
+//   })
+// }
+const emit =  defineEmits(['editPost'])
+function showModal(){
+  emit('editPost')
 }
-
 const showDeleteModal = ref(false)
 
 async function handleDelete() {

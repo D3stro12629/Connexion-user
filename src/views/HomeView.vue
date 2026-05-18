@@ -2,18 +2,36 @@
 import { ref, onMounted, watch } from 'vue'
 import { usePostStore } from '@/stores/post'
 import { useCategoryStore } from '@/stores/category'
+import { useAuthStores } from '@/stores/auth'
 import { useToast } from 'vue-toast-notification'
 import PostCard from '@/components/PostCard.vue'
 import CreatePostView from '@/views/CreatePostView.vue'
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
 import ChatWidget from '@/components/ChatWidget.vue'
 import api from '@/api/http'
+import BaseModal from '../components/BaseModal.vue'
 
-const postStore     = usePostStore()
-const categoryStore = useCategoryStore()
-const loading       = ref(true)
-const $toast        = useToast()
-const searchTab     = ref('feed') // 'feed' | 'people'
+const showModalEdit  = ref(false)
+const postStore      = usePostStore()
+const categoryStore  = useCategoryStore()
+const auth           = useAuthStores()
+const loading        = ref(true)
+const $toast         = useToast()
+const searchTab      = ref('feed') // 'feed' | 'people'
+
+// Edit modal state
+const isEditing          = ref(false)
+const editingPost        = ref(null)
+const content            = ref('')
+const image              = ref(null)
+const imagePreview       = ref(null)
+const selectedCategories = ref([])
+const showEmoji          = ref(false)
+const submitSuccess      = ref('')
+const submitError        = ref('')
+const textarea           = ref(null)
+
+const emojis = ['😀','😂','😍','🥰','😎','🤔','👍','❤️','🎉','🔥','💯','🙏']
 
 // Reset tab to feed and scroll to top on every new search
 watch(() => postStore.searchQuery, () => {
@@ -22,8 +40,8 @@ watch(() => postStore.searchQuery, () => {
 })
 
 // People You May Know
-const suggestedUsers  = ref([])
-const loadingPeople   = ref(true)
+const suggestedUsers = ref([])
+const loadingPeople  = ref(true)
 
 onMounted(async () => {
   loading.value = true
@@ -103,7 +121,85 @@ const getCategoryIcon = (categoryName) => {
 }
 
 function userAvatar(user) {
-  return user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.full_name || 'U')}&background=6366f1&color=fff&size=80`
+  return user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.full_name || 'U')}&background=6366f1&color=fff&size=80`
+}
+
+function handleEdit(post) {
+  editingPost.value        = post
+  isEditing.value          = true
+  content.value            = post?.content || ''
+  selectedCategories.value = post?.categories?.map(c => c.id) || []
+  imagePreview.value       = post?.image || null
+  image.value              = null
+  submitSuccess.value      = ''
+  submitError.value        = ''
+  showModalEdit.value      = true
+}
+
+function closeModal() {
+  showModalEdit.value      = false
+  isEditing.value          = false
+  editingPost.value        = null
+  content.value            = ''
+  image.value              = null
+  imagePreview.value       = null
+  selectedCategories.value = []
+  showEmoji.value          = false
+  submitSuccess.value      = ''
+  submitError.value        = ''
+}
+
+function autoResize() {
+  if (textarea.value) {
+    textarea.value.style.height = 'auto'
+    textarea.value.style.height = textarea.value.scrollHeight + 'px'
+  }
+}
+
+function toggleCategory(id) {
+  const idx = selectedCategories.value.indexOf(id)
+  if (idx === -1) {
+    selectedCategories.value.push(id)
+  } else {
+    selectedCategories.value.splice(idx, 1)
+  }
+}
+
+function uploadImage(e) {
+  const file = e.target.files[0]
+  if (!file) return
+  image.value = file
+  imagePreview.value = URL.createObjectURL(file)
+}
+
+function addEmoji(emoji) {
+  content.value += emoji
+}
+
+async function submitPost() {
+  submitSuccess.value = ''
+  submitError.value   = ''
+  loading.value       = true
+  try {
+    const formData = new FormData()
+    formData.append('content', content.value)
+    if (image.value) formData.append('image', image.value)
+    selectedCategories.value.forEach(id => formData.append('categories[]', id))
+
+    if (isEditing.value && editingPost.value) {
+      await api.post(`/api/posts/${editingPost.value.id}?_method=POST`, formData)
+      submitSuccess.value = 'បានកែប្រែការបង្ហោះដោយជោគជ័យ!'
+      $toast.success(submitSuccess.value)
+    }
+
+    await postStore.fetchPosts()
+    closeModal()
+  } catch (err) {
+    submitError.value = err.response?.data?.message || 'មានបញ្ហាក្នុងការរក្សាទុក'
+    $toast.error(submitError.value)
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
@@ -152,7 +248,7 @@ function userAvatar(user) {
               <div v-else-if="postStore.posts.length > 0">
                 <div v-for="post in postStore.posts" :key="post.id" class="card post-card">
                   <div class="card-body">
-                    <PostCard :post="post" />
+                    <PostCard :post="post" @editPost="handleEdit(post)" />
                   </div>
                 </div>
               </div>
@@ -206,7 +302,7 @@ function userAvatar(user) {
           </div>
 
           <!-- RIGHT SIDEBAR -->
-          <div class="col-side" >
+          <div class="col-side">
             <div class="sidebar">
 
               <!-- Categories -->
@@ -278,323 +374,454 @@ function userAvatar(user) {
       </div>
     </div>
   </DashboardLayout>
+
+  <!-- ───────────── EDIT MODAL ───────────── -->
+  <BaseModal style="top: 200px;"
+    v-if="showModalEdit"
+    @closeModal="closeModal"
+  >
+    <!-- HEADER -->
+    <template #header>
+      <div class="modal-head-inner">
+        <h5 class="modal-title-text">
+          {{ isEditing ? 'កែប្រែការបង្ហោះ' : 'បង្កើតការបង្ហោះ' }}
+        </h5>
+        <button class="modal-close-btn" @click="closeModal">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+    </template>
+
+    <!-- BODY -->
+    <template #body>
+
+      <!-- Composer row: avatar + textarea -->
+      <div class="mc-composer">
+        <img :src="userAvatar(auth.user)" alt="avatar" class="mc-avatar" />
+        <textarea
+          ref="textarea"
+          v-model="content"
+          class="mc-textarea"
+          placeholder="តើអ្នកមានគំនិតបែបមិច?"
+          @input="autoResize"
+        />
+      </div>
+
+      <!-- Image preview -->
+      <div v-if="imagePreview" class="mc-preview-wrap">
+        <img :src="imagePreview" class="mc-preview-img" />
+        <button class="mc-remove-img" @click="imagePreview = null; image = null">
+          <i class="bi bi-x-circle-fill"></i>
+        </button>
+      </div>
+
+      <!-- Category label -->
+      <p class="mc-label">ជ្រើសរើសប្រភេទ</p>
+
+      <!-- Category badges -->
+      <div class="mc-category-box">
+        <span
+          v-for="cat in categoryStore.category"
+          :key="cat.id"
+          class="mc-badge"
+          :class="{ 'mc-badge--active': selectedCategories.includes(cat.id) }"
+          @click="toggleCategory(cat.id)"
+        >
+          <i :class="getCategoryIcon(cat.name)"></i>
+          {{ cat.name }}
+        </span>
+      </div>
+
+      <!-- Action bar -->
+      <div class="mc-actions">
+        <label class="mc-action-btn">
+          <i class="bi bi-file-earmark-image"></i>
+          <span>ឯកសារភ្ជាប់</span>
+          <input type="file" hidden @change="uploadImage" />
+        </label>
+
+        <button class="mc-action-btn" @click="showEmoji = !showEmoji">
+          😊 <span>អារម្មណ៍</span>
+        </button>
+
+        <button
+          class="mc-submit-btn"
+          @click="submitPost"
+          :disabled="loading || (!content && !image)"
+        >
+          <span v-if="loading" class="mc-spinner"></span>
+          {{ loading
+            ? (isEditing ? 'កំពុងកែប្រែ...' : 'កំពុងបង្កើត...')
+            : (isEditing ? 'កែប្រែ' : 'បង្កើត') }}
+        </button>
+      </div>
+
+      <!-- Success / Error messages -->
+      <p v-if="submitSuccess" class="mc-success">✓ {{ submitSuccess }}</p>
+      <p v-if="submitError"   class="mc-error">✕ {{ submitError }}</p>
+
+      <!-- Emoji picker -->
+      <div v-if="showEmoji" class="mc-emoji-box">
+        <span
+          v-for="e in emojis"
+          :key="e"
+          class="mc-emoji"
+          @click="addEmoji(e)"
+        >{{ e }}</span>
+      </div>
+
+    </template>
+
+    <!-- FOOTER -->
+    <template #footer>
+      <small class="mc-footer-text">ចែករំលែកគំនិតរបស់អ្នកជាមួយអ្នកដទៃ</small>
+    </template>
+  </BaseModal>
 </template>
 
 <style scoped>
+/* ═══════════════════════════════════════
+   PAGE & LAYOUT  (unchanged)
+════════════════════════════════════════ */
 .home-page {
   background: #f0f2f5;
   min-height: 100vh;
   padding: 20px 0;
 }
-
 .container {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-.row {
-  display: flex;
-  gap: 20px;
-  align-items: flex-start;
-}
-
-.col-feed {
-  flex: 1;
-  min-width: 0;
-}
-
-.col-side {
-  width: 280px;
-  flex-shrink: 0;
-}
-
-/* ── Search tabs ───────────────────── */
-.search-tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 14px;
-}
-
-.stab {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 18px;
-  border-radius: 22px;
-  border: 2px solid #e2e8f0;
-  background: #fff;
-  font-size: .86rem;
-  font-weight: 600;
-  color: #64748b;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all .18s;
-}
-.stab:hover { border-color: #6366f1; color: #6366f1; }
-.stab.active {
-  background: #6366f1;
-  border-color: #6366f1;
-  color: #fff;
-  box-shadow: 0 2px 8px rgba(99,102,241,.25);
-}
-
-.stab-badge {
-  background: rgba(255,255,255,0.3);
-  color: inherit;
-  font-size: .7rem;
-  font-weight: 700;
-  padding: 1px 7px;
-  border-radius: 20px;
-}
-.stab:not(.active) .stab-badge {
-  background: #ede9fe;
-  color: #6366f1;
-}
-
-/* ── People results ─────────────────── */
-.search-people-card { border-left: 3px solid #6366f1; }
-
-.search-people-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.search-person-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  text-decoration: none;
-  color: inherit;
-  transition: background .15s;
-}
-.search-person-item:hover { background: #f8fafc; }
-
-.search-person-av {
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
-.search-person-info { flex: 1; min-width: 0; }
-.search-person-name {
-  font-size: .88rem;
-  font-weight: 600;
-  color: #1e293b;
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.search-person-role {
-  font-size: .76rem;
-  color: #94a3b8;
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.search-person-btn {
-  font-size: .76rem;
-  font-weight: 600;
-  color: #6366f1;
-  padding: 5px 12px;
-  border-radius: 8px;
-  border: 1.5px solid #e0e7ff;
-  background: #f8f5ff;
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-
-/* CARD */
-.card {
-  background: #fff;
-  border-radius: 12px;
-  margin-bottom: 16px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-}
-
-.card-body { padding: 14px 16px; }
-
-.card-title {
-  font-weight: 700;
-  font-size: .9rem;
-  margin-bottom: 10px;
-  color: #1e293b;
-}
-
-.card-text {
-  color: #65676b;
-  font-size: 14px;
-}
-
-/* SIDEBAR */
-.sidebar {
-  position: sticky;
-  top: 80px;
-}
-
-/* CREATE POST */
-.create-post-card { padding: 0; }
-
-/* POST */
-.post-card { transition: 0.2s; }
-.post-card:hover { transform: translateY(-2px); }
-
-/* CATEGORY */
-.category-list { display: flex; flex-direction: column; gap: 6px; }
-.category-item {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 8px 10px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: .86rem;
-  color: #374151;
-  transition: background .15s;
-}
-.category-item:hover { background: #f0f2f5; }
-
-/* People You May Know */
-.person-item {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  margin-bottom: 10px;
-}
-
-.person-av-link { flex-shrink: 0; }
-.person-av {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  object-fit: cover;
-  display: block;
-}
-
-.person-info { flex: 1; min-width: 0; }
-.person-name {
-  font-size: .82rem;
-  font-weight: 600;
-  color: #1e293b;
-  text-decoration: none;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: block;
-}
-.person-name:hover { color: #6366f1; }
-.person-role {
-  font-size: .72rem;
-  color: #94a3b8;
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.person-view-btn {
-  font-size: .72rem;
-  font-weight: 600;
-  color: #6366f1;
-  text-decoration: none;
-  flex-shrink: 0;
-  padding: 3px 8px;
-  border-radius: 6px;
-  border: 1px solid #e0e7ff;
-  transition: background .15s;
-}
-.person-view-btn:hover { background: #eff6ff; }
-
-.people-empty p {
-  font-size: .78rem;
-  color: #94a3b8;
-  text-align: center;
-  margin: 8px 0 4px;
-}
-
-/* LOAD MORE */
-.load-more { display: flex; justify-content: center; margin: 10px 0 20px; }
-.btn-load {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 9px 20px;
-  border-radius: 9px;
-  border: none;
-  background: #1877f2;
-  color: #fff;
-  cursor: pointer;
-  font-size: .86rem;
-  font-weight: 600;
-  font-family: inherit;
-}
-.btn-load:hover:not(:disabled) { background: #166fe5; }
-.btn-load:disabled { opacity: .6; cursor: not-allowed; }
-
-/* SPINNER */
-.spinner {
-  width: 28px;
-  height: 28px;
-  border: 3px solid #ddd;
-  border-top-color: #1877f2;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 16px auto;
-  display: block;
-}
-.spinner.small { width: 16px; height: 16px; border-width: 2px; margin: 8px auto; }
-
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* EMPTY */
-.empty-icon { font-size: 40px; color: #ccc; margin-bottom: 10px; }
-.text-center { text-align: center; }
-/* Update these styles in your Home page <style scoped> */
-.container {
-  max-width: 100%; /* Use 100% and let max-width handle the rest */
+  max-width: 100%;
   width: 1100px;
   margin: 0 auto;
   padding: 0 20px;
   box-sizing: border-box;
 }
-
 .row {
   display: flex;
   gap: 24px;
   align-items: flex-start;
-  flex-wrap: wrap; /* Allow sidebar to drop below on small screens */
+  flex-wrap: wrap;
 }
+.col-feed { flex: 1; min-width: 320px; }
+.col-side  { width: 300px; flex-shrink: 0; }
 
-.col-feed {
-  flex: 1;
-  min-width: 320px; /* Prevents feed from getting too squished */
+/* Search tabs */
+.search-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+.stab {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 18px; border-radius: 22px;
+  border: 2px solid #e2e8f0; background: #fff;
+  font-size: .86rem; font-weight: 600; color: #64748b;
+  cursor: pointer; font-family: inherit; transition: all .18s;
 }
-
-.col-side {
-  width: 300px; /* Increased slightly for better modern feel */
-  flex-shrink: 0;
+.stab:hover { border-color: #6366f1; color: #6366f1; }
+.stab.active {
+  background: #6366f1; border-color: #6366f1; color: #fff;
+  box-shadow: 0 2px 8px rgba(99,102,241,.25);
 }
+.stab-badge {
+  background: rgba(255,255,255,0.3); color: inherit;
+  font-size: .7rem; font-weight: 700; padding: 1px 7px; border-radius: 20px;
+}
+.stab:not(.active) .stab-badge { background: #ede9fe; color: #6366f1; }
 
-/* On tablet/small screens, stack columns to prevent horizontal scroll */
+/* People results */
+.search-people-card { border-left: 3px solid #6366f1; }
+.search-people-grid { display: flex; flex-direction: column; gap: 6px; }
+.search-person-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px; border-radius: 10px;
+  text-decoration: none; color: inherit; transition: background .15s;
+}
+.search-person-item:hover { background: #f8fafc; }
+.search-person-av { width: 46px; height: 46px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+.search-person-info { flex: 1; min-width: 0; }
+.search-person-name { font-size: .88rem; font-weight: 600; color: #1e293b; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.search-person-role { font-size: .76rem; color: #94a3b8; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.search-person-btn { font-size: .76rem; font-weight: 600; color: #6366f1; padding: 5px 12px; border-radius: 8px; border: 1.5px solid #e0e7ff; background: #f8f5ff; flex-shrink: 0; white-space: nowrap; }
+
+/* Cards */
+.card { background: #fff; border-radius: 12px; margin-bottom: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+.card-body { padding: 14px 16px; }
+.card-title { font-weight: 700; font-size: .9rem; margin-bottom: 10px; color: #1e293b; }
+.card-text { color: #65676b; font-size: 14px; }
+
+.sidebar { position: sticky; top: 80px; }
+.create-post-card { padding: 0; }
+.post-card { transition: 0.2s; }
+.post-card:hover { transform: translateY(-2px); }
+
+.category-list { display: flex; flex-direction: column; gap: 6px; }
+.category-item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 8px; cursor: pointer; font-size: .86rem; color: #374151; transition: background .15s; }
+.category-item:hover { background: #f0f2f5; }
+
+.person-item { display: flex; align-items: center; gap: 9px; margin-bottom: 10px; }
+.person-av-link { flex-shrink: 0; }
+.person-av { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; display: block; }
+.person-info { flex: 1; min-width: 0; }
+.person-name { font-size: .82rem; font-weight: 600; color: #1e293b; text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+.person-name:hover { color: #6366f1; }
+.person-role { font-size: .72rem; color: #94a3b8; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.person-view-btn { font-size: .72rem; font-weight: 600; color: #6366f1; text-decoration: none; flex-shrink: 0; padding: 3px 8px; border-radius: 6px; border: 1px solid #e0e7ff; transition: background .15s; }
+.person-view-btn:hover { background: #eff6ff; }
+.people-empty p { font-size: .78rem; color: #94a3b8; text-align: center; margin: 8px 0 4px; }
+
+.load-more { display: flex; justify-content: center; margin: 10px 0 20px; }
+.btn-load { display: inline-flex; align-items: center; gap: 8px; padding: 9px 20px; border-radius: 9px; border: none; background: #1877f2; color: #fff; cursor: pointer; font-size: .86rem; font-weight: 600; font-family: inherit; }
+.btn-load:hover:not(:disabled) { background: #166fe5; }
+.btn-load:disabled { opacity: .6; cursor: not-allowed; }
+
+.spinner { width: 28px; height: 28px; border: 3px solid #ddd; border-top-color: #1877f2; border-radius: 50%; animation: spin 1s linear infinite; margin: 16px auto; display: block; }
+.spinner.small { width: 16px; height: 16px; border-width: 2px; margin: 8px auto; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.empty-icon { font-size: 40px; color: #ccc; margin-bottom: 10px; }
+.text-center { text-align: center; }
+
 @media (max-width: 992px) {
-  .col-side {
-    width: 100%;
-    order: 2; /* Move sidebar below feed on mobile */
-  }
-  .col-feed {
-    width: 100%;
-    order: 1;
-  }
-  .row {
-    gap: 16px;
-  }
+  .col-side { width: 100%; order: 2; }
+  .col-feed { width: 100%; order: 1; }
+  .row { gap: 16px; }
+}
+
+/* ═══════════════════════════════════════
+   MODAL STYLES  (mc- prefix = modal content)
+════════════════════════════════════════ */
+
+/* Header */
+.modal-head-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+.modal-title-text {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+.modal-close-btn {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s, color .15s;
+}
+.modal-close-btn:hover { background: #e2e8f0; color: #1e293b; }
+
+/* Composer */
+.mc-composer {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+.mc-avatar {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid #e0e7ff;
+}
+.mc-textarea {
+  flex: 1;
+  min-height: 80px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: .93rem;
+  font-family: inherit;
+  color: #1e293b;
+  resize: none;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  background: #f8fafc;
+  line-height: 1.55;
+}
+.mc-textarea:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+  background: #fff;
+}
+.mc-textarea::placeholder { color: #94a3b8; }
+
+/* Image preview */
+.mc-preview-wrap {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 14px;
+}
+.mc-preview-img {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1.5px solid #e2e8f0;
+}
+.mc-remove-img {
+  position: absolute;
+  top: 8px; right: 8px;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 28px; height: 28px;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+}
+.mc-remove-img:hover { background: rgba(239,68,68,0.85); }
+
+/* Category label */
+.mc-label {
+  font-size: .8rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin: 0 0 8px;
+}
+
+/* Category badges */
+.mc-category-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.mc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
+  font-size: .8rem;
+  font-weight: 500;
+  color: #64748b;
+  cursor: pointer;
+  transition: all .15s;
+  user-select: none;
+}
+.mc-badge:hover { border-color: #6366f1; color: #6366f1; background: #eef2ff; }
+.mc-badge--active {
+  border-color: #6366f1;
+  background: #6366f1;
+  color: #fff;
+}
+.mc-badge--active:hover { background: #4f46e5; border-color: #4f46e5; }
+
+/* Action bar */
+.mc-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-top: 4px;
+  border-top: 1px solid #f1f5f9;
+  margin-bottom: 10px;
+}
+.mc-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
+  color: #475569;
+  font-size: .82rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .15s;
+}
+.mc-action-btn:hover { border-color: #6366f1; color: #6366f1; background: #eef2ff; }
+
+/* Submit button */
+.mc-submit-btn {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 22px;
+  border-radius: 9px;
+  border: none;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  color: #fff;
+  font-size: .88rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity .15s, transform .1s, box-shadow .15s;
+  box-shadow: 0 3px 10px rgba(99,102,241,0.35);
+}
+.mc-submit-btn:hover:not(:disabled) {
+  opacity: .92;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 16px rgba(99,102,241,0.4);
+}
+.mc-submit-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* Mini spinner inside button */
+.mc-spinner {
+  width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+
+/* Success / Error */
+.mc-success {
+  font-size: .83rem; font-weight: 600;
+  color: #16a34a;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 6px 0 0;
+}
+.mc-error {
+  font-size: .83rem; font-weight: 600;
+  color: #dc2626;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 6px 0 0;
+}
+
+/* Emoji picker */
+.mc-emoji-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+.mc-emoji {
+  font-size: 1.4rem;
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 3px 5px;
+  transition: background .12s, transform .1s;
+}
+.mc-emoji:hover { background: #e0e7ff; transform: scale(1.2); }
+
+/* Footer text */
+.mc-footer-text {
+  font-size: .78rem;
+  color: #94a3b8;
 }
 </style>
