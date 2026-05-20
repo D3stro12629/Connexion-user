@@ -118,6 +118,7 @@ const isDesktop = computed(() => windowWidth.value >= 992)
 
 /* Menu */
 const menuItems = [
+  // { key: 'home',     label: 'ទំព័រដើម',    icon: 'bi-house-door', to: '/home' },
   { key: 'home',     label: 'ទំព័រដើម',    icon: 'bi-house-door', to: '/' },
   { key: 'messages', label: 'សារ', icon: 'bi-chat-dots',  to: '/messages' },
 ]
