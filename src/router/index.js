@@ -19,12 +19,12 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'landing', // Now the primary entry point
+      name: 'landing', 
       component: LandingView,
     },
     {
       path: '/home',
-      name: 'home', // Dashboard moved here
+      name: 'home', 
       component: HomeView,
       meta: { requiresAuth: true }, 
     },

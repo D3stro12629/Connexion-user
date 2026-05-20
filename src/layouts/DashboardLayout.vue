@@ -66,13 +66,7 @@ onUnmounted(() => {
 .dashboard-shell {
   width: 100%;
   min-height: 100vh;
-  /* background-color: #0f172a; */
   margin-left: 120px;
-  /* Dark futuristic base */
-  /* background-image:
-    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.1) 0px, transparent 50%); */
   color: #e2e8f0;
 }
 

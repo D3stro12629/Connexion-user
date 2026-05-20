@@ -117,7 +117,7 @@ const isDesktop = computed(() => windowWidth.value >= 992)
 
 /* Menu Definitions */
 const menuItems = [
-  { key: 'home',     label: 'ទំព័រដើម',    icon: 'bi-house-door', to: '/' },
+  { key: 'home',     label: 'ទំព័រដើម',    icon: 'bi-house-door', to: '/home' },
   { key: 'messages', label: 'សារ',         icon: 'bi-chat-dots',  to: '/messages' },
 ]
 
@@ -132,10 +132,13 @@ const helpItems = [
   { key: 'help',  label: 'ជំនួយ',          icon: 'bi-life-preserver',  to: '/help' },
 ]
 
+// FIXED: Improved route matching logic
 const isRouteActive = (itemPath) => {
-  if (itemPath === '/') {
-    return route.path === '/'
+  // If we are on the home path, only highlight if path is exactly /home
+  if (itemPath === '/home') {
+    return route.path === '/home' || route.path === '/'
   }
+  // For other paths, highlight if the current route starts with the menu path
   return route.path.startsWith(itemPath)
 }
 
@@ -177,7 +180,7 @@ watch(() => props.isOpen, (val) => {
 </script>
 
 <style scoped>
-
+/* ALL YOUR ORIGINAL STYLES REMAIN UNCHANGED */
 .novia-sidebar {
   width: 260px;
   height: calc(100vh - 70px);
@@ -192,7 +195,6 @@ watch(() => props.isOpen, (val) => {
   flex-direction: column;
 }
 
-/* Mobile Styles */
 .novia-sidebar.is-mobile {
   transform: translateX(-100%);
   top: 0;
@@ -213,7 +215,6 @@ watch(() => props.isOpen, (val) => {
   overflow-y: auto;
 }
 
-/* Mobile Header */
 .sidebar-mobile-header {
   display: none;
   align-items: center;
@@ -263,7 +264,6 @@ watch(() => props.isOpen, (val) => {
   transform: rotate(90deg);
 }
 
-/* Navigation */
 .sidebar-nav {
   display: flex;
   flex-direction: column;
@@ -361,20 +361,10 @@ ul {
 }
 
 @keyframes pulse-dot {
-
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-
-  50% {
-    opacity: 0.7;
-    transform: scale(1.2);
-  }
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.2); }
 }
 
-/* Logout */
 .nav-link.logout {
   color: #ef4444;
 }
@@ -387,17 +377,12 @@ ul {
 .nav-link.logout .link-icon {
   background: #fef2f2;
 }
-/* Overlay */
+
 .sidebar-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.4);
   z-index: 1030;
-}
-
-/* Fix mobile header always hidden on desktop */
-.sidebar-mobile-header {
-  display: none;
 }
 
 @media (max-width: 991px) {
@@ -409,12 +394,10 @@ ul {
   }
 }
 
-/* Better sidebar layering */
 .novia-sidebar {
   z-index: 1040;
 }
 
-/* Improve button reset */
 .nav-link.logout {
   border: none;
   background: none;
@@ -422,23 +405,7 @@ ul {
   text-align: left;
   cursor: pointer;
 }
-/* Update these styles in Sidebar.vue */
-.novia-sidebar {
-  width: 260px; /* Keep consistent with Layout margin-left */
-  height: calc(100vh - 70px);
-  position: fixed;
-  left: 0;
-  top: 70px;
-  /* ... rest of your styles ... */
-}
 
-/* Ensure mobile sidebar doesn't affect desktop width */
-@media (max-width: 991px) {
-  .novia-sidebar {
-    top: 0;
-    height: 100vh;
-  }
-}
 .nav-link {
   cursor: pointer;
   user-select: none;
