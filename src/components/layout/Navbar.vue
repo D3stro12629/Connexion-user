@@ -3,7 +3,7 @@
         <div class="navbar-container">
             <!-- Left: Brand -->
             <div class="navbar-section left">
-                <router-link to="/settings" class="brand">
+                <router-link to="/home" class="brand">
                     <div class="logo-icon">
                         <i class="bi bi-hexagon-fill"></i>
                     </div>
@@ -73,16 +73,16 @@
                         <div v-if="showProfileDropdown" class="profile-dropdown-menu">
                             <router-link to="/profile" class="dropdown-item" @click="closeDropdown">
                                 <i class="bi bi-person-circle"></i>
-                                <span>My Profile</span>
+                                <span>ប្រវត្តិរូបរបស់ខ្ញុំ</span>
                             </router-link>
                             <router-link to="/settings" class="dropdown-item" @click="closeDropdown">
                                 <i class="bi bi-gear"></i>
-                                <span>Settings</span>
+                                <span>ការកំណត់</span>
                             </router-link>
                             <hr class="dropdown-divider">
                             <button class="dropdown-item" @click="logout">
                                 <i class="bi bi-box-arrow-right"></i>
-                                <span>Logout</span>
+                                <span>ចាកចេញ</span>
                             </button>
                         </div>
                     </div>

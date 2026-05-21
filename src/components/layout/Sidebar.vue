@@ -5,7 +5,6 @@
     <div v-if="isOpen && !isDesktop" class="sidebar-overlay" @click="$emit('close')"></div>
 
     <div class="sidebar-content">
-
       <!-- Mobile Header -->
       <div class="sidebar-mobile-header">
         <div class="brand-sm">
@@ -19,8 +18,7 @@
 
       <!-- Navigation -->
       <nav class="sidebar-nav">
-
-        <!-- Main -->
+        <!-- Main Menu Group -->
         <div class="nav-group">
           <span class="nav-label">ម៉ឺនុយ</span>
           <ul>
@@ -28,20 +26,20 @@
               <router-link
                 :to="item.to"
                 class="nav-link"
-                :class="{ active: activeItem === item.key }"
-                @click="setActive()"
+                :class="{ active: isRouteActive(item.to) }"
+                @click="closeSidebarOnMobile"
               >
                 <span class="link-icon">
                   <i :class="['bi', item.icon]"></i>
                 </span>
                 <span class="link-text">{{ item.label }}</span>
-                <span v-if="activeItem === item.key" class="active-indicator"></span>
+                <span v-if="isRouteActive(item.to)" class="active-indicator"></span>
               </router-link>
             </li>
           </ul>
         </div>
 
-        <!-- Settings -->
+        <!-- Settings Group -->
         <div class="nav-group">
           <span class="nav-label">កំណត់</span>
           <ul>
@@ -49,20 +47,20 @@
               <router-link
                 :to="item.to"
                 class="nav-link"
-                :class="{ active: activeItem === item.key }"
-                @click="setActive()"
+                :class="{ active: isRouteActive(item.to) }"
+                @click="closeSidebarOnMobile"
               >
                 <span class="link-icon">
                   <i :class="['bi', item.icon]"></i>
                 </span>
                 <span class="link-text">{{ item.label }}</span>
-                <span v-if="activeItem === item.key" class="active-indicator"></span>
+                <span v-if="isRouteActive(item.to)" class="active-indicator"></span>
               </router-link>
             </li>
           </ul>
         </div>
 
-        <!-- Help & Info -->
+        <!-- Help Group -->
         <div class="nav-group">
           <span class="nav-label">ជំនួយ</span>
           <ul>
@@ -70,20 +68,20 @@
               <router-link
                 :to="item.to"
                 class="nav-link"
-                :class="{ active: activeItem === item.key }"
-                @click="setActive()"
+                :class="{ active: isRouteActive(item.to) }"
+                @click="closeSidebarOnMobile"
               >
                 <span class="link-icon">
                   <i :class="['bi', item.icon]"></i>
                 </span>
                 <span class="link-text">{{ item.label }}</span>
-                <span v-if="activeItem === item.key" class="active-indicator"></span>
+                <span v-if="isRouteActive(item.to)" class="active-indicator"></span>
               </router-link>
             </li>
           </ul>
         </div>
 
-        <!-- Logout -->
+        <!-- Logout (Static) -->
         <div class="nav-group bottom">
           <span class="nav-label">គណនី</span>
           <button class="nav-link logout" @click="handleLogout">
@@ -93,11 +91,11 @@
             <span class="link-text">ចាកចេញ</span>
           </button>
         </div>
-
       </nav>
     </div>
   </aside>
 </template>
+
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useAuthStores } from '@/stores/auth'
@@ -111,38 +109,44 @@ const emit = defineEmits(['close'])
 
 const auth = useAuthStores()
 const router = useRouter()
-const route  = useRoute()
+const route = useRoute()
 
+// Responsive logic
 const windowWidth = ref(window.innerWidth)
 const isDesktop = computed(() => windowWidth.value >= 992)
 
-/* Menu */
+/* Menu Definitions */
 const menuItems = [
-  // { key: 'home',     label: 'ទំព័រដើម',    icon: 'bi-house-door', to: '/home' },
-  { key: 'home',     label: 'ទំព័រដើម',    icon: 'bi-house-door', to: '/' },
-  { key: 'messages', label: 'សារ', icon: 'bi-chat-dots',  to: '/messages' },
+  { key: 'home',     label: 'ទំព័រដើម',    icon: 'bi-house-door', to: '/home' },
+  { key: 'messages', label: 'សារ',         icon: 'bi-chat-dots',  to: '/messages' },
 ]
 
 const settingsItems = [
-  { key: 'settings', label: 'ការកំណត់',          icon: 'bi-gear',         to: '/settings' },
-  { key: 'privacy',  label: 'ឯកសារឯកជន', icon: 'bi-shield-check', to: '/privacy' },
+  { key: 'settings', label: 'ការកំណត់',    icon: 'bi-gear',         to: '/settings' },
+  { key: 'privacy',  label: 'ឯកសារឯកជន',   icon: 'bi-shield-check', to: '/privacy' },
 ]
 
 const helpItems = [
-  { key: 'about', label: 'អំពីពួកយើង', icon: 'bi-info-circle',    to: '/about' },
-  { key: 'faq',   label: 'សំណួរ',         icon: 'bi-question-circle', to: '/faq' },
-  { key: 'help',  label: 'ជំនួយ', icon: 'bi-life-preserver',  to: '/help' },
+  { key: 'about', label: 'អំពីពួកយើង',     icon: 'bi-info-circle',    to: '/about' },
+  { key: 'faq',   label: 'សំណួរ',          icon: 'bi-question-circle', to: '/faq' },
+  { key: 'help',  label: 'ជំនួយ',          icon: 'bi-life-preserver',  to: '/help' },
 ]
 
-const allItems = [...menuItems, ...settingsItems, ...helpItems]
+// FIXED: Improved route matching logic
+const isRouteActive = (itemPath) => {
+  // If we are on the home path, only highlight if path is exactly /home
+  if (itemPath === '/home') {
+    return route.path === '/home' || route.path === '/'
+  }
+  // For other paths, highlight if the current route starts with the menu path
+  return route.path.startsWith(itemPath)
+}
 
-const activeItem = computed(() => {
-  const match = allItems.find(item => item.to === route.path)
-  return match?.key ?? ''
-})
-
-const setActive = () => {
-  if (!isDesktop.value) emit('close')
+// Close sidebar when clicking a link on mobile
+const closeSidebarOnMobile = () => {
+  if (!isDesktop.value) {
+    emit('close')
+  }
 }
 
 const handleLogout = async () => {
@@ -154,6 +158,7 @@ const handleLogout = async () => {
   router.push('/login')
 }
 
+// Window resize listener
 const handleResize = () => {
   windowWidth.value = window.innerWidth
 }
@@ -166,13 +171,16 @@ onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
 })
 
+// Prevent scroll when mobile menu is open
 watch(() => props.isOpen, (val) => {
   if (!isDesktop.value) {
     document.body.style.overflow = val ? 'hidden' : ''
   }
 })
 </script>
+
 <style scoped>
+/* ALL YOUR ORIGINAL STYLES REMAIN UNCHANGED */
 .novia-sidebar {
   width: 260px;
   height: calc(100vh - 70px);
@@ -187,7 +195,6 @@ watch(() => props.isOpen, (val) => {
   flex-direction: column;
 }
 
-/* Mobile Styles */
 .novia-sidebar.is-mobile {
   transform: translateX(-100%);
   top: 0;
@@ -208,7 +215,6 @@ watch(() => props.isOpen, (val) => {
   overflow-y: auto;
 }
 
-/* Mobile Header */
 .sidebar-mobile-header {
   display: none;
   align-items: center;
@@ -258,7 +264,6 @@ watch(() => props.isOpen, (val) => {
   transform: rotate(90deg);
 }
 
-/* Navigation */
 .sidebar-nav {
   display: flex;
   flex-direction: column;
@@ -356,20 +361,10 @@ ul {
 }
 
 @keyframes pulse-dot {
-
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-
-  50% {
-    opacity: 0.7;
-    transform: scale(1.2);
-  }
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.2); }
 }
 
-/* Logout */
 .nav-link.logout {
   color: #ef4444;
 }
@@ -382,17 +377,12 @@ ul {
 .nav-link.logout .link-icon {
   background: #fef2f2;
 }
-/* Overlay */
+
 .sidebar-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.4);
   z-index: 1030;
-}
-
-/* Fix mobile header always hidden on desktop */
-.sidebar-mobile-header {
-  display: none;
 }
 
 @media (max-width: 991px) {
@@ -404,12 +394,10 @@ ul {
   }
 }
 
-/* Better sidebar layering */
 .novia-sidebar {
   z-index: 1040;
 }
 
-/* Improve button reset */
 .nav-link.logout {
   border: none;
   background: none;
@@ -417,21 +405,9 @@ ul {
   text-align: left;
   cursor: pointer;
 }
-/* Update these styles in Sidebar.vue */
-.novia-sidebar {
-  width: 260px; /* Keep consistent with Layout margin-left */
-  height: calc(100vh - 70px);
-  position: fixed;
-  left: 0;
-  top: 70px;
-  /* ... rest of your styles ... */
-}
 
-/* Ensure mobile sidebar doesn't affect desktop width */
-@media (max-width: 991px) {
-  .novia-sidebar {
-    top: 0;
-    height: 100vh;
-  }
+.nav-link {
+  cursor: pointer;
+  user-select: none;
 }
 </style>

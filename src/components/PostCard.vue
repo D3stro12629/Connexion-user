@@ -1,5 +1,5 @@
 <template>
-  <div class="post-card" v-if="post && post.creator">
+  <div class="post-card" " v-if="post && post.creator">
     <div class="card">
 
       <!-- Header -->
@@ -29,12 +29,15 @@
             </button>
             <Transition name="drop">
               <div v-if="showMenu" class="post-menu-dropdown">
-                <button class="post-menu-item" @click="handleEdit(); showMenu = false">
+                <!-- <button class="post-menu-item" @click="handleEdit(); showMenu = false">
+                  <i class="bi bi-pencil"></i> {{ t('postCard.edit') }}
+                </button> -->
+                  <button class="post-menu-item" @click="showModal(); showMenu = false">
                   <i class="bi bi-pencil"></i> {{ t('postCard.edit') }}
                 </button>
-                <button class="post-menu-item danger" @click="handleDelete(); showMenu = false">
-                  <i class="bi bi-trash"></i> {{ t('postCard.delete') }}
-                </button>
+            <button class="post-menu-item danger" @click="handleDelete(); showMenu = false">
+  <i class="bi bi-trash"></i> {{ t('postCard.delete') }}
+</button>
               </div>
             </Transition>
           </div>
@@ -65,7 +68,7 @@
           <span v-for="cat in post.categories" :key="cat.id" class="pc-badge">{{ cat.name }}</span>
         </div>
         <div class="mb-2" v-if="post.categories && post.categories.length === 0">
-          <span class="pc-badge draft">Draft</span>
+          <span class="pc-badge draft">សេចក្តីព្រាង</span>
         </div>
 
         <!-- Reaction counts bar -->
@@ -84,18 +87,18 @@
         <div class="action-row">
           <button class="act-btn" :class="{ liked: liked }" @click="toggleLike">
             <i :class="liked ? 'bi bi-hand-thumbs-up-fill' : 'bi bi-hand-thumbs-up'"></i>
-            <span>{{ liked ? 'Liked' : 'Like' }}</span>
+            <span>{{ liked ? 'ចូលចិត្ត' : 'ចូលចិត្ត' }}</span>
           </button>
 
           <button class="act-btn" :class="{ active: showComments }" @click="showComments = !showComments">
             <i class="bi bi-chat"></i>
-            <span>Comment</span>
+            <span>មតិយោបល់</span>
           </button>
 
           <div class="share-wrap" ref="shareRef">
             <button class="act-btn" :class="{ active: showShare }" @click="showShare = !showShare">
               <i class="bi bi-share"></i>
-              <span>Share</span>
+              <span>ចែករំលែក</span>
             </button>
 
             <!-- Share dropdown -->
@@ -106,7 +109,7 @@
                     <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.932z"/></svg>
                   </span>
                   Telegram
-                </a>
+                </a> 
                 <a :href="shareTwitter" target="_blank" class="share-item" @click="showShare = false">
                   <span class="share-icon tw">
                     <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
@@ -168,41 +171,64 @@
         </div>
       </Transition>
 
-      <BaseModal v-if="showDeleteModal" @closeModal="showDeleteModal = false">
-        <template #header>
-          <div class="d-flex justify-content-center w-100">
-            <i class="bi bi-trash" style="font-size:28px; color:#ef4444; background:#fff1f2; border-radius:50%; padding:12px;"></i>
-          </div>
-        </template>
+<BaseModal v-if="showDeleteModal" @closeModal="!isDeleting && (showDeleteModal = false)">
+  <template #header>
+    <div class="delete-modal-icon">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+        <path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+          stroke="#e11d48" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  </template>
 
-        <template #body>
-          <div class="text-center">
-            <h5>Delete post</h5>
-            <p class="text-muted">Are you sure you want to delete this post? This action cannot be undone.</p>
-          </div>
-        </template>
+  <template #body>
+    <div class="delete-modal-body">
+      <h5 class="delete-modal-title">តើអ្នកចង់លុបពិតប្រាកដទេ</h5>
+      <p class="delete-modal-desc">អ្នកពិតជាចង់លុបមែនទេ? សកម្មភាពនេះមិនអាចត្រឡប់វិញបានទេ។</p>
+    </div>
+  </template>
 
-        <template #footer>
-          <div class="w-100 d-flex gap-2 justify-content-center">
-            <button class="btn btn-light" @click="showDeleteModal = false">Cancel</button>
-            <button class="btn btn-danger" @click="confirmDelete">Delete</button>
-          </div>
-        </template>
-      </BaseModal>
+  <template #footer>
+    <div class="delete-modal-footer">
+      <button
+        class="btn-delete"
+        :disabled="isDeleting"
+        @click="confirmDelete"
+      >
+        <span
+          v-if="isDeleting"
+          class="btn-spinner"
+        ></span>
+        <span>{{ isDeleting ? 'កំពុងលុប...' : 'លុបការបង្ហោះ' }}</span>
+      </button>
 
+      <button
+        class="btn-cancel"
+        :disabled="isDeleting"
+        @click="showDeleteModal = false"
+      >
+        បោះបង់
+      </button>
+    </div>
+  </template>
+</BaseModal>
     </div>
   </div>
+
+
+
+
 </template>
 
 <script setup>
+import { getCurrentInstance } from 'vue'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useAuthStores } from '@/stores/auth'
 import { usePostStore } from '@/stores/post'
 import { useRouter } from 'vue-router'
 import BaseModal from './BaseModal.vue'
-
+const { proxy } = getCurrentInstance()
 const props = defineProps({ post: { type: Object, required: true } })
-
 const auth      = useAuthStores()
 const postStore = usePostStore()
 const router    = useRouter()
@@ -249,7 +275,9 @@ const showMenu = ref(false)
 const menuRef = ref(null)
 
 function t(key) {
-  const map = { 'postCard.edit': 'Edit', 'postCard.delete': 'Delete' }
+  
+  const map = { 'postCard.edit': 'កែប្រែ', 'postCard.delete': 'លុប' }
+  console.log(map)
   return map[key] || key
 }
 
@@ -287,33 +315,43 @@ function formatDate(d) {
   return new Date(d).toLocaleDateString()
 }
 
-function handleEdit() {
-  router.push({
-    name: 'CreatePost',
-    query: {
-      edit: props.post.id,
-      from: router.currentRoute.value.fullPath,
-    },
-  })
+// function handleEdit() {
+//   router.push({
+//     name: 'CreatePost',
+//     query: {
+//       edit: props.post.id,
+//       from: router.currentRoute.value.fullPath,
+//     },
+//   })
+// }
+const emit =  defineEmits(['editPost'])
+function showModal(){
+  emit('editPost')
 }
+// AFTER
 
 const showDeleteModal = ref(false)
+const isDeleting = ref(false)
 
 async function handleDelete() {
-  // open confirmation modal
   showDeleteModal.value = true
 }
 
 async function confirmDelete() {
   try {
+    isDeleting.value = true
     await postStore.deletePost(props.post.id)
+    proxy.$toast.success('លុបការបង្ហោះដោយជោគជ័យ!')
   } catch (e) {
+   proxy.$toast.error('មានបញ្ហាក្នុងការលុប')
     console.error(e)
   } finally {
+    isDeleting.value = false
     showDeleteModal.value = false
     showMenu.value = false
   }
 }
+
 </script>
 
 <style scoped>
@@ -583,5 +621,118 @@ async function confirmDelete() {
 @media (max-width: 576px) {
   .card-header, .card-body { padding: 10px 12px; }
   .act-btn { padding: 8px 10px; font-size: .8rem; }
+}
+
+/* Icon */
+.delete-modal-icon {
+  display: flex;
+  justify-content: center;
+  padding-top: 8px;
+}
+
+.delete-modal-icon svg {
+  background: #fff1f2;
+  border-radius: 50%;
+  padding: 14px;
+  width: 56px;
+  height: 56px;
+}
+
+/* Body */
+.delete-modal-body {
+  text-align: center;
+  padding: 8px 16px 0;
+}
+
+.delete-modal-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 8px;
+}
+
+.delete-modal-desc {
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Footer */
+.delete-modal-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 0 4px;
+}
+
+/* Delete button */
+.btn-delete {
+  width: 100%;
+  padding: 12px;
+  background: #e11d48;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.btn-delete:hover:not(:disabled) {
+  background: #be123c;
+}
+
+.btn-delete:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn-delete:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Cancel button */
+.btn-cancel {
+  width: 100%;
+  padding: 12px;
+  background: #fff;
+  color: #374151;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-cancel:hover:not(:disabled) {
+  background: #f9fafb;
+}
+
+.btn-cancel:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Spinner */
+.btn-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 </style>
