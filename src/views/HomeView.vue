@@ -335,7 +335,7 @@ async function submitPost() {
                     <div class="spinner small"></div>
                   </div>
 
-                  <template v-else-if="suggestedUsers.length">
+                 <template v-else-if="suggestedUsers.length">
                     <div
                       v-for="person in suggestedUsers"
                       :key="person.id"
@@ -359,7 +359,7 @@ async function submitPost() {
                   </template>
 
                   <div v-else class="people-empty">
-                    <p>ស្វែងរកមនុស្សដែលអ្នកចង់ស្វែងរក។</p>
+                    <p >ស្វែងរកមនុស្សដែលអ្នកចង់ស្វែងរក។</p>
                   </div>
                 </div>
               </div>

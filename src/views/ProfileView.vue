@@ -141,9 +141,9 @@
               <div class="card-body">
                 <div class="section-header">
                   <h6 class="card-title">អត្ថបទរបស់ខ្ញុំ ({{ postCount }})</h6>
-                  <router-link to="/create-post" class="btn-sm-primary">
+                   <div  @click="openModal" class="btn-sm-primary">    
                     <Plus :size="13" /> បង្កើតអត្ថបទ
-                  </router-link>
+                 </div>
                 </div>
 
                 <div v-if="loadingPosts" class="text-center py-4">
@@ -319,6 +319,97 @@
       </div>
     </div>
 
+    <BaseModal
+      v-if="showModal"
+      @closeModal="closeModal"
+    >
+      <!-- HEADER -->
+      <template #header>
+        <div class="d-flex justify-content-between w-100">
+          <h5>{{ isEditing ? 'កែប្រែ​រការបង្ហោះ' : 'បង្កើតការបង្ហោះ' }}</h5>
+          <button class="btn-close" @click="closeModal"></button>
+        </div>
+      </template>
+
+      <!-- BODY -->
+      <template #body>
+        <div class="card">
+
+          <!-- TEXT -->
+          <div class="composer-header">
+            <img :src="userAvatar" alt="avatarSrc" class="avatar">
+            <textarea
+              ref="textarea"
+              v-model="content"
+              class="textarea"
+              placeholder="តើអ្នកមានគំនិតបែបមិច?"
+              @input="autoResize"
+            />
+          </div>
+
+          <!-- IMAGE -->
+          <img v-if="imagePreview" :src="imagePreview" class="preview" />
+
+          <!-- CATEGORY -->
+          <p class="text-muted mt-3">ជ្រើសរើសប្រភេទ</p>
+
+          <div class="category-box">
+            <span
+              v-for="cat in categoryStore.category"
+              :key="cat.id"
+              class="badge"
+              :class="{ active: selectedCategories.includes(cat.id) }"
+              @click="toggleCategory(cat.id)"
+            >
+              <i :class="getCategoryIcon(cat.name)"></i>
+              {{ cat.name }}
+            </span>
+          </div>
+
+          <!-- ACTIONS -->
+          <div class="actions">
+            <label class="btn">
+              <i class="bi bi-file-earmark-image"></i> ឯកសារភ្ជាប់
+              <input type="file" hidden @change="uploadImage" />
+            </label>
+
+            <button class="btn" @click="showEmoji = !showEmoji">
+              😊 អារម្មណ៍
+            </button>
+
+            <button
+              class="post-btn"
+              @click="submitPost"
+              :disabled="loading || (!content && !image)"
+            >
+              {{ loading ? (isEditing ? 'កំពុងកែប្រែរ...' : 'កំពុងបង្កើត...') : (isEditing ? 'កែប្រែ' : 'បង្កើត') }}
+            </button>
+          </div>
+
+          <p v-if="submitSuccess" class="success-text mt-2">{{ submitSuccess }}</p>
+          <p v-if="submitError" class="error-text mt-2">{{ submitError }}</p>
+
+          <!-- EMOJI -->
+          <div v-if="showEmoji" class="emoji-box">
+            <span
+              v-for="e in emojis"
+              :key="e"
+              class="emoji"
+              @click="addEmoji(e)"
+            >
+              {{ e }}
+            </span>
+          </div>
+
+        </div>
+      </template>
+
+      <!-- FOOTER -->
+      <template #footer>
+        <small class="text-muted">ចែករំលែកគំនិតរបស់អ្នកជាមួយអ្នកដទៃ</small>
+      </template>
+    </BaseModal>
+
     <!-- ═══════════════════════════════════════════
          MODALS
     ════════════════════════════════════════════ -->
@@ -360,7 +451,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, nextTick, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import {
   Plus, Pencil, Camera, ImageIcon, Settings, Mail, Phone,
   MapPin, Link2, Building2, CalendarDays, CheckCircle2, XCircle,
@@ -369,19 +461,26 @@ import {
 import { usePostStore } from '@/stores/post'
 import { useAuthStores } from '@/stores/auth'
 import { useProfileStore } from '@/stores/profile'
+import { useCategoryStore } from '@/stores/category'
 import PostCard from '@/components/PostCard.vue'
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
 import ImageCropModal from '@/components/ImageCropModal.vue'
 import CollaborationModal from '@/components/CollaborationModal.vue'
 import SkillModal from '@/components/SkillModal.vue'
+import BaseModal from '@/components/BaseModal.vue'
 
-const postStore    = usePostStore()
-const auth         = useAuthStores()
+const emit = defineEmits(['post-created'])
+
+const route = useRoute()
+const router = useRouter()
+const postStore = usePostStore()
+const auth = useAuthStores()
 const profileStore = useProfileStore()
+const categoryStore = useCategoryStore()
 
-// ── State ──────────────────────────────────────────────────
-const activeTab     = ref('overview')
-const loadingPosts  = ref(false)
+// ── Profile Tab State ───────────────────────────────────────
+const activeTab       = ref('overview')
+const loadingPosts    = ref(false)
 const uploadingCover  = ref(false)
 const uploadingCV     = ref(false)
 const showCollabModal = ref(false)
@@ -400,31 +499,30 @@ const avatarInput = ref(null)
 const coverInput  = ref(null)
 const cvInput     = ref(null)
 
-// ── Default avatar ─────────────────────────────────────────
+// Default avatar
 const defaultAvatar = 'https://i.pravatar.cc/150'
 
 // ── Profile data (from auth.user) ──────────────────────────
 const profile = computed(() => {
   const u = auth.user || {}
   return {
-    id:           u.id,
-    full_name:    u.full_name   || 'អ្នកប្រើប្រាស់',
-    avatar:       u.avatar      || null,
-    cover:        u.cover       || '',
-    email:        u.email       || '',
-    phone:        u.phone       || '',
-    current_city: u.current_city || '',
-    home_town:    u.home_town   || '',
+    id:             u.id,
+    full_name:      u.full_name      || 'អ្នកប្រើប្រាស់',
+    avatar:         u.avatar         || null,
+    cover:          u.cover          || '',
+    email:          u.email          || '',
+    phone:          u.phone          || '',
+    current_city:   u.current_city   || '',
+    home_town:      u.home_town      || '',
     portfolio_link: u.portfolio_link || '',
-    professional: u.professional || null,
-    educations:   u.educations  || [],
-    skills:       u.skills      || [],
-    collaboration: u.collaboration || null,
-    cv:           u.cv          || null,
+    professional:   u.professional   || null,
+    educations:     u.educations     || [],
+    skills:         u.skills         || [],
+    collaboration:  u.collaboration  || null,
+    cv:             u.cv             || null,
   }
 })
 
-// Helper function to format date
 const formatDate = (dateStr) => {
   if (!dateStr) return ''
   const [year, month] = dateStr.split('-')
@@ -433,25 +531,16 @@ const formatDate = (dateStr) => {
 }
 
 // ── Posts ──────────────────────────────────────────────────
-onMounted(async () => {
-  loadingPosts.value = true
-  try {
-    await postStore.fetchPosts()
-  } finally {
-    loadingPosts.value = false
-  }
-})
-
 const ownPosts = computed(() => {
   if (!auth.user?.id) return []
   return (postStore.posts || []).filter(p =>
     p.user_id === auth.user.id || p.creator?.id === auth.user.id
   )
 })
-const postCount   = computed(() => ownPosts.value.length)
-const currentPage = ref(1)
-const perPage     = 5
-const totalPages  = computed(() => Math.max(1, Math.ceil(ownPosts.value.length / perPage)))
+const postCount      = computed(() => ownPosts.value.length)
+const currentPage    = ref(1)
+const perPage        = 5
+const totalPages     = computed(() => Math.max(1, Math.ceil(ownPosts.value.length / perPage)))
 const paginatedPosts = computed(() => {
   const start = (currentPage.value - 1) * perPage
   return ownPosts.value.slice(start, start + perPage)
@@ -541,9 +630,360 @@ function showToast(msg, type = 'success') {
   toast.value = { show: true, msg, type }
   setTimeout(() => { toast.value.show = false }, 3000)
 }
+
+// ── Post Modal State ────────────────────────────────────────
+const showModal    = ref(false)
+const content      = ref('')
+const image        = ref(null)
+const imagePreview = ref(null)
+const loading      = ref(false)
+const submitError  = ref('')
+const submitSuccess = ref('')
+const emojis       = ['😀','😂','😍','🔥','👍','❤️','🎉','😎']
+const showEmoji    = ref(false)
+const textarea     = ref(null)
+const isEditing    = ref(false)
+const editingPostId = ref(null)
+const selectedCategories = ref([])
+
+const userAvatar = computed(() =>
+  auth.user?.avatar || 'https://ui-avatars.com/api/?name=User&background=6366f1&color=fff'
+)
+
+const getReturnPath = () => {
+  const from = route.query.from
+  if (typeof from === 'string' && from.trim()) return from
+  return '/'
+}
+
+const openModal = () => {
+  showModal.value = true
+}
+
+const closeModal = () => {
+  showModal.value = false
+  if (isEditing.value) {
+    router.push(getReturnPath())
+  }
+}
+
+const autoResize = async () => {
+  await nextTick()
+  if (!textarea.value) return
+  textarea.value.style.height = 'auto'
+  textarea.value.style.height = textarea.value.scrollHeight + 'px'
+}
+
+const addEmoji = (e) => {
+  content.value += e
+  autoResize()
+}
+
+const uploadImage = (event) => {
+  const file = event.target.files?.[0]
+  if (!file) return
+  image.value = file
+  imagePreview.value = URL.createObjectURL(file)
+}
+
+const toggleCategory = (id) => {
+  if (selectedCategories.value.includes(id)) {
+    selectedCategories.value = selectedCategories.value.filter(c => c !== id)
+  } else {
+    selectedCategories.value.push(id)
+  }
+}
+
+const getCategoryIcon = (name) => {
+  const map = {
+    event: 'bi-calendar-event',
+    internship: 'bi-briefcase',
+    jobs: 'bi-briefcase-fill',
+    project: 'bi-diagram-3',
+    study: 'bi-book'
+  }
+  return map[name.toLowerCase()] || 'bi-tag'
+}
+
+const submitPost = async () => {
+  if (!content.value && !image.value) return
+
+  loading.value = true
+  submitError.value = ''
+  submitSuccess.value = ''
+
+  try {
+    const formData = new FormData()
+    formData.append('text', content.value)
+    formData.append('category_ids', JSON.stringify(selectedCategories.value))
+
+    if (image.value) {
+      formData.append('image', image.value)
+    }
+
+    if (isEditing.value && editingPostId.value) {
+      await postStore.updatePost(editingPostId.value, formData)
+      submitSuccess.value = 'Post updated successfully. Redirecting...'
+    } else {
+      await postStore.addPost(formData)
+      submitSuccess.value = 'Post created successfully.'
+    }
+
+    content.value = ''
+    image.value = null
+    imagePreview.value = null
+    selectedCategories.value = []
+    showEmoji.value = false
+
+    emit('post-created')
+    if (isEditing.value) {
+      setTimeout(() => { closeModal() }, 900)
+    } else {
+      closeModal()
+    }
+
+  } catch (error) {
+    submitError.value =
+      error?.response?.data?.message ||
+      'Failed to update post. Please try again.'
+  } finally {
+    loading.value = false
+  }
+}
+
+// ── onMounted hooks ─────────────────────────────────────────
+onMounted(async () => {
+  loadingPosts.value = true
+  try {
+    await postStore.fetchPosts()
+  } finally {
+    loadingPosts.value = false
+  }
+})
+
+onMounted(async () => {
+  await categoryStore.fetchCategory()
+})
+
+onMounted(async () => {
+  const editId = route.query.edit
+  if (editId) {
+    isEditing.value = true
+    editingPostId.value = parseInt(editId)
+
+    openModal()
+
+    postStore.fetchPostById(editingPostId.value)
+      .then(() => {
+        const post = postStore.post
+        if (post) {
+          content.value = post.text || ''
+          imagePreview.value = post.image || null
+          selectedCategories.value = Array.isArray(post.categories)
+            ? post.categories.map((cat) => Number(cat.id)).filter(Boolean)
+            : []
+          autoResize()
+        }
+      })
+      .catch((err) => {
+        console.error('បរាជ័យ​ក្នុង​ការ​បង្ហោះសារ', err)
+      })
+  }
+})
 </script>
 
 <style scoped>
+.post-trigger-btn p {
+    flex: 1;
+    margin: 0;
+    font-size: 14px;
+    color: #888780;
+    font-family: 'Kantumruy Pro', sans-serif;
+  }
+
+  .post-trigger-btn .bi-pencil-square {
+    color: #7F77DD;
+    font-size: 16px;
+  }
+
+  .avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #EEEDFE;
+  }
+
+  .card {
+    padding: 18px;
+    border: none;
+    background: transparent;
+  }
+
+  .composer-header {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+    border-bottom: 0.5px solid rgba(83, 74, 183, 0.12);
+  }
+
+  .textarea {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    color: #2C2C2A;
+    background: transparent;
+    resize: none;
+    min-height: 64px;
+    font-family: 'Kantumruy Pro', sans-serif;
+    line-height: 1.7;
+  }
+
+  .textarea::placeholder {
+    color: #B4B2A9;
+  }
+
+  .preview {
+    width: 100%;
+    border-radius: 10px;
+    border: 0.5px solid rgba(83, 74, 183, 0.15);
+    margin-top: 10px;
+  }
+
+  .text-muted {
+    font-size: 12px;
+    color: #888780;
+    margin-bottom: 8px !important;
+    font-family: 'Kantumruy Pro', sans-serif;
+  }
+
+  .category-box {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 10px 0 14px;
+  }
+
+  .badge {
+    padding: 5px 11px;
+    border-radius: 20px;
+    cursor: pointer;
+    border: 0.5px solid rgba(0, 0, 0, 0.1);
+    background: #F1EFE8;
+    color: #5F5E5A;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.15s;
+    font-weight: 400;
+  }
+
+  .badge:hover {
+    border-color: #7F77DD;
+    color: #3C3489;
+    background: #EEEDFE;
+  }
+
+  .badge.active {
+    background: #EEEDFE;
+    border-color: #7F77DD;
+    color: #3C3489;
+    font-weight: 500;
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    padding-top: 12px;
+    border-top: 0.5px solid rgba(83, 74, 183, 0.1);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    border-radius: 8px;
+    border: 0.5px solid rgba(0, 0, 0, 0.1);
+    background: #F1EFE8;
+    color: #5F5E5A;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+
+  .btn:hover {
+    background: #D3D1C7;
+    border-color: rgba(0, 0, 0, 0.15);
+  }
+
+  .post-btn {
+    margin-left: auto;
+    background: #534AB7;
+    color: #EEEDFE;
+    padding: 8px 20px;
+    border-radius: 8px;
+    border: none;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    font-family: inherit;
+    letter-spacing: 0.01em;
+  }
+
+  .post-btn:hover {
+    background: #3C3489;
+  }
+
+  .post-btn:active {
+    transform: scale(0.98);
+  }
+
+  .post-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .emoji-box {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 0.5px solid rgba(83, 74, 183, 0.1);
+  }
+
+  .emoji {
+    cursor: pointer;
+    font-size: 18px;
+    padding: 4px;
+    border-radius: 6px;
+    transition: background 0.15s;
+  }
+
+  .emoji:hover {
+    background: #EEEDFE;
+  }
+
+  .error-text {
+    color: #A32D2D;
+    font-size: 12px;
+  }
+
+  .success-text {
+    color: #3B6D11;
+    font-size: 12px;
+  }
+
 .profile-page {
   background: #f3f4f6;
   min-height: 100vh;
@@ -569,7 +1009,6 @@ function showToast(msg, type = 'success') {
   background: linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.65) 100%);
 }
 
-/* Change cover button */
 .cover-edit-btn {
   position: absolute;
   top: 14px;
@@ -707,29 +1146,6 @@ function showToast(msg, type = 'success') {
   font-weight: 600; 
 }
 
-/* ── LAYOUT ──────────────────────────── */
-/* .row {
-  display: flex;
-  flex-wrap: wrap;
-  margin: 0 -12px;
-} */
-
-/* .col-lg-4,
-.col-lg-8 {
-  padding: 0 12px;
-}
-
-.col-lg-4 {
-  flex: 0 0 33.333%;
-  max-width: 33.333%;
-}
-
-.col-lg-8 {
-  flex: 0 0 66.666%;
-  max-width: 66.666%;
-} */
-
-/* Responsive */
 @media (max-width: 992px) {
   .col-lg-4,
   .col-lg-8 {

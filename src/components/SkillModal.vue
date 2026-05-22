@@ -168,10 +168,18 @@ async function save() {
 </script>
 
 <style scoped>
+/* ── COLOR TOKENS ─────────────────────────
+   --purple-main : #534AB7
+   --purple-dark : #3C3489
+   --purple-light: #7F77DD
+   --purple-tint : #EEEDFE
+   --border      : rgba(83, 74, 183, 0.15)
+───────────────────────────────────────── */
+
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -187,7 +195,7 @@ async function save() {
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 20px 60px rgba(83, 74, 183, 0.18);
   overflow: hidden;
   animation: popIn .22s cubic-bezier(.22,1,.36,1);
 }
@@ -197,12 +205,13 @@ async function save() {
   to   { transform: scale(1);   opacity: 1; }
 }
 
+/* ── HEADER ──────────────────────────────── */
 .modal-header {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 18px 20px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid rgba(83, 74, 183, 0.12);
   flex-shrink: 0;
 }
 
@@ -210,8 +219,8 @@ async function save() {
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: #fef9c3;
-  color: #ca8a04;
+  background: #EEEDFE;
+  color: #534AB7;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -221,7 +230,7 @@ async function save() {
 .modal-title {
   font-size: .92rem;
   font-weight: 700;
-  color: #111;
+  color: #2C2C2A;
   margin: 0;
 }
 
@@ -232,7 +241,7 @@ async function save() {
 }
 
 .close-btn {
-  background: #f5f5f5;
+  background: #f3f4f6;
   border: none;
   border-radius: 8px;
   width: 30px;
@@ -241,13 +250,14 @@ async function save() {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #555;
+  color: #6b7280;
   margin-left: auto;
   flex-shrink: 0;
-  transition: background .15s;
+  transition: background .15s, color .15s;
 }
-.close-btn:hover { background: #fee2e2; color: #dc2626; }
+.close-btn:hover { background: #EEEDFE; color: #534AB7; }
 
+/* ── BODY ────────────────────────────────── */
 .modal-body {
   padding: 18px 20px;
   display: flex;
@@ -262,7 +272,7 @@ async function save() {
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: .06em;
-  color: #6b7280;
+  color: #7F77DD;
   display: block;
   margin-bottom: 6px;
 }
@@ -279,7 +289,7 @@ async function save() {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  background: #111;
+  background: #534AB7;
   color: #fff;
   font-size: .76rem;
   font-weight: 600;
@@ -298,7 +308,7 @@ async function save() {
 }
 .tag-remove:hover { color: #fff; }
 
-/* Search */
+/* ── SEARCH ──────────────────────────────── */
 .search-wrap {
   position: relative;
 }
@@ -318,16 +328,20 @@ async function save() {
   border: 1.5px solid #e5e7eb;
   border-radius: 9px;
   font-size: .86rem;
-  color: #111;
-  background: #fafafa;
+  color: #2C2C2A;
+  background: #f3f4f6;
   outline: none;
   font-family: inherit;
   box-sizing: border-box;
-  transition: border-color .15s, box-shadow .15s;
+  transition: border-color .15s, box-shadow .15s, background .15s;
 }
-.search-input:focus { border-color: #111; box-shadow: 0 0 0 3px rgba(0,0,0,.07); background: #fff; }
+.search-input:focus {
+  border-color: #7F77DD;
+  box-shadow: 0 0 0 3px rgba(83, 74, 183, 0.1);
+  background: #fff;
+}
 
-/* Skills grid */
+/* ── SKILLS GRID ─────────────────────────── */
 .skills-grid {
   display: flex;
   flex-wrap: wrap;
@@ -352,8 +366,17 @@ async function save() {
   font-family: inherit;
   transition: all .15s;
 }
-.skill-chip:hover { border-color: #111; color: #111; background: #f9f9f9; }
-.skill-chip.active { background: #111; color: #fff; border-color: #111; font-weight: 600; }
+.skill-chip:hover {
+  border-color: #7F77DD;
+  color: #534AB7;
+  background: #EEEDFE;
+}
+.skill-chip.active {
+  background: #534AB7;
+  color: #fff;
+  border-color: #534AB7;
+  font-weight: 600;
+}
 
 .loading-row {
   display: flex;
@@ -365,12 +388,12 @@ async function save() {
   padding: 20px 0;
 }
 
-/* Add skill input row */
+/* ── ADD SKILL ROW ───────────────────────── */
 .add-skill-row {
   display: flex;
   gap: 8px;
   align-items: center;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid rgba(83, 74, 183, 0.12);
   padding-top: 12px;
 }
 
@@ -391,21 +414,25 @@ async function save() {
   border: 1.5px solid #e5e7eb;
   border-radius: 9px;
   font-size: .86rem;
-  color: #111;
-  background: #fafafa;
+  color: #2C2C2A;
+  background: #f3f4f6;
   outline: none;
   font-family: inherit;
   box-sizing: border-box;
-  transition: border-color .15s;
+  transition: border-color .15s, box-shadow .15s, background .15s;
 }
-.f-input:focus { border-color: #111; background: #fff; }
+.f-input:focus {
+  border-color: #7F77DD;
+  box-shadow: 0 0 0 3px rgba(83, 74, 183, 0.1);
+  background: #fff;
+}
 
 .btn-add {
   width: 36px;
   height: 36px;
   border-radius: 9px;
   border: none;
-  background: #111;
+  background: #534AB7;
   color: #fff;
   display: flex;
   align-items: center;
@@ -414,38 +441,38 @@ async function save() {
   flex-shrink: 0;
   transition: background .15s;
 }
-.btn-add:hover:not(:disabled) { background: #374151; }
+.btn-add:hover:not(:disabled) { background: #3C3489; }
 .btn-add:disabled { opacity: .4; cursor: not-allowed; }
 
-/* Footer */
+/* ── FOOTER ──────────────────────────────── */
 .modal-footer {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
   padding: 14px 20px;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid rgba(83, 74, 183, 0.12);
   flex-shrink: 0;
 }
 
 .btn-cancel {
-  background: #f5f5f5;
+  background: #f3f4f6;
   border: none;
   border-radius: 9px;
   padding: 8px 18px;
   font-size: .84rem;
   font-weight: 600;
   cursor: pointer;
-  color: #555;
+  color: #6b7280;
   font-family: inherit;
-  transition: background .15s;
+  transition: background .15s, color .15s;
 }
-.btn-cancel:hover { background: #e5e7eb; }
+.btn-cancel:hover { background: #EEEDFE; color: #534AB7; }
 
 .btn-save {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #111;
+  background: #534AB7;
   color: #fff;
   border: none;
   border-radius: 9px;
@@ -454,11 +481,13 @@ async function save() {
   font-weight: 600;
   cursor: pointer;
   font-family: inherit;
-  transition: background .15s;
+  transition: background .15s, transform .1s;
 }
-.btn-save:hover:not(:disabled) { background: #374151; }
+.btn-save:hover:not(:disabled) { background: #3C3489; }
+.btn-save:active:not(:disabled) { transform: scale(0.98); }
 .btn-save:disabled { opacity: .4; cursor: not-allowed; }
 
+/* ── SPINNER ─────────────────────────────── */
 .spin { animation: spin .7s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 </style>

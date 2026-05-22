@@ -80,7 +80,7 @@
                                 <span>ការកំណត់</span>
                             </router-link>
                             <hr class="dropdown-divider">
-                            <button class="dropdown-item" @click="logout">
+                            <button class="dropdown-item" style="color: red;" @click="logout">
                                 <i class="bi bi-box-arrow-right"></i>
                                 <span>ចាកចេញ</span>
                             </button>
