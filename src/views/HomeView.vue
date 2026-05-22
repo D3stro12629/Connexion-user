@@ -209,8 +209,8 @@ async function submitPost() {
       <div class="container">
         <div class="row">
 
-          <!-- MAIN FEED -->
-          <div class="col-feed">
+          <!-- MAIN FEED screen scrollable -->
+            <div class="col-feed feed-scroll">
             <div class="card create-post-card">
               <div class="card-body">
                 <CreatePostView @post-created="handlePostCreated" />
@@ -487,6 +487,14 @@ async function submitPost() {
   background: #f0f2f5;
   min-height: 100vh;
   padding: 20px 0;
+}
+.container { height: 100%; }
+.row { height: 100%; }
+.feed-scroll {
+  height: calc(100vh - 70px - 40px); /* viewport minus navbar and page padding */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-right: 6px;
 }
 .container {
   max-width: 100%;

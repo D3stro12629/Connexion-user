@@ -68,6 +68,7 @@ onUnmounted(() => {
   min-height: 100vh;
   margin-left: 120px;
   color: #e2e8f0;
+  overflow: hidden; /* prevent body/document scrollbar, let inner columns handle scrolling */
 }
 
 .dashboard-body {
@@ -125,16 +126,16 @@ onUnmounted(() => {
 }
 
 /* Responsive */
-/* @media (max-width: 991px) {
+@media (max-width: 991px) {
   .main-content {
     margin-left: 0;
   }
-
-  .content-wrapper {
-    padding: 1rem;
-  }
-} */
- /* Update these styles in DashboardLayout.vue */
+ .content-wrapper {
+   padding: 2rem;
+   max-width: 100%; /* Prevent fixed width overflow */
+   margin: 0 auto;
+ }
+}
 .dashboard-shell {
   width: 100%;
   min-height: 100vh;
@@ -149,6 +150,7 @@ onUnmounted(() => {
   padding-top: 70px;
   min-height: 100vh;
   width: 100%; /* Ensure it doesn't exceed parent */
+  overflow: hidden; /* ensure no outer scrollbar */
 }
 
 .main-content {
@@ -179,4 +181,36 @@ onUnmounted(() => {
     padding: 1rem;
   }
 }
+</style>
+
+<!-- Global rules to ensure only the feed column scrolls and to hide outer scrollbars in Chrome/Firefox -->
+<style>
+/* Prevent the document from showing a scrollbar; inner columns handle scrolling */
+html, body, #app {
+  height: 100%;
+  overflow: hidden !important;
+  -ms-overflow-style: none; /* IE/Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Preserve scrolling on the feed column (explicitly restate) */
+.feed-scroll {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Hide webkit scrollbars for the document root */
+html::-webkit-scrollbar, body::-webkit-scrollbar, #app::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+  background: transparent;
+}
+
+/* Make feed-scroll use a styled thin scrollbar on WebKit */
+.feed-scroll::-webkit-scrollbar { width: 10px; }
+.feed-scroll::-webkit-scrollbar-track { background: transparent; }
+.feed-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+
+/* Firefox: thin scrollbar for feed */
+.feed-scroll { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
 </style>
