@@ -327,7 +327,7 @@ async function submitPost() {
               </div>
 
               <!-- People You May Know -->
-              <div class="card">
+              <!-- <div class="card">
                 <div class="card-body">
                   <h6 class="card-title">មនុស្សដែលអ្នកធ្លាប់ស្គាល់</h6>
 
@@ -362,7 +362,7 @@ async function submitPost() {
                     <p >ស្វែងរកមនុស្សដែលអ្នកចង់ស្វែងរក។</p>
                   </div>
                 </div>
-              </div>
+              </div> -->
 
               <!-- Chat Widget -->
               <ChatWidget />
