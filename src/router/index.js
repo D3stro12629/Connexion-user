@@ -10,8 +10,6 @@ import MyProfileView from '../views/ProfileView.vue'
 import MessagePanelView from '@/views/MessagePanelView.vue'
 import PrivacySecurityView from '@/views/PrivacySecurityView.vue'
 
-// Public routes (no auth needed)
-// Added 'landing' here to ensure logged-in users are redirected away from it
 const publicRoutes = ['landing', 'login', 'register', 'forget-password', 'verify-otp', 'reset-password']
 
 const router = createRouter({
@@ -21,12 +19,13 @@ const router = createRouter({
       path: '/',
       name: 'landing', 
       component: LandingView,
+      meta: { title: 'Landing' },
     },
     {
       path: '/home',
       name: 'home', 
       component: HomeView,
-      meta: { requiresAuth: true }, 
+      meta: { requiresAuth: true, title: 'Home' }, 
     },
     {
       path: '/about',
@@ -37,106 +36,115 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: LoginView,
+      meta: { title: 'Login' },
     },
     {
       path: '/register',
       name: 'register',
       component: RegisterView,
+      meta: { title: 'Register' },
     },
     {
       path: '/forget-password',
       name: 'forget-password',
       component: () => import('@/views/Auth/Forgetpw.vue'),
+      meta: { title: 'Forget Password' },
     },
     {
       path: '/verify-otp',
       name: 'verify-otp',
       component: () => import('@/views/Auth/VerifyOtp.vue'),
+      meta: { title: 'Verify OTP' },
     },
     {
       path: '/reset-password',
       name: 'reset-password',
       component: () => import('@/views/Auth/ResetPassword.vue'),
+      meta: { title: 'Reset Password' },
     },
     {
-      path: '/landing', // Keep path for backward compatibility
+      path: '/landing', 
       name: 'landing-alias',
       component: LandingView,
+        meta: { title: 'Landing' },
     },
     {
       path: '/profileDetail',
       name: 'profileDetail',
       component: ProfileDetailsView,
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, title: 'Profile Detail' },
     },
     {
       path: '/profile/:id',
       name: 'profileById',
       component: () => import('@/views/ProfileDetailsView.vue'),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, title: 'Profile' },
     },
     {
       path: '/profile',
       name: 'profile',
       component: MyProfileView,
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, title: 'My Profile' },
     },
     {
       path: '/editProfile',
       name: 'editProfile',
       component: () => import('@/views/Editprofileinfoview.vue'),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, title: 'Edit Profile' },
     },
     {
       path: '/editEducation',
       name: 'editEducation',
       component: () => import('@/views/Editeducationview.vue'),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, title: 'Edit Education' },
     },
     {
       path: '/editProject',
       name: 'editProject',
       component: () => import('@/views/Editprojectview.vue'),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, title: 'Edit Project' },
     },
     {
       path: '/settings',
       name: 'settings',
       component: () => import('@/views/SettingsView.vue'),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, title: 'Settings' },
     },
     {
       path: '/create-post',
       name: 'CreatePost',
       component: () => import('@/views/CreatePostView.vue'),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, title: 'Create Post' },
     },
     {
       path: '/messages',
       name: 'messages',
       component: MessagePanelView,
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, title: 'Messages' },
     },
     {
       path: '/privacy',
       name: 'privacy',
       component: PrivacySecurityView,
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, title: 'Privacy & Security' },
     },
     {
       path: '/help',
       name: 'help',
       component: () => import('../views/HelpView.vue'),
+      meta: { title: 'Help' },
     },
     {
       path: '/faq',
       name: 'faq',
       component: () => import('../views/FaqView.vue'),
+      meta: { title: 'FAQ' },
     },
     {
       path: '/:pathMatch(.*)*',
       name: 'NotFound',
       component: () => import('../views/ForbiddenView.vue'),
+      meta: { title: '404 Not Found' },
     },
   ],
 })
