@@ -31,6 +31,7 @@ const router = createRouter({
       path: '/about',
       name: 'about',
       component: () => import('../views/AboutView.vue'),
+      meta: { requiresAuth: true, title: 'About' }, 
     },
     {
       path: '/login',
@@ -153,12 +154,11 @@ const router = createRouter({
 router.beforeEach((to) => {
   const auth = useAuthStores()
 
-  // If route requires auth and user is not logged in → redirect to login
+  const baseTitle = 'Connexion'
+  document.title = to.meta.title ? `${to.meta.title} - ${baseTitle}` : baseTitle
   if (to.meta.requiresAuth && !auth.isLoggedIn) {
     return { name: 'login' }
   }
-
-  // If user is already logged in and tries to access login/register → redirect to home
   if (auth.isLoggedIn && publicRoutes.includes(to.name)) {
     return { name: 'home' }
   }

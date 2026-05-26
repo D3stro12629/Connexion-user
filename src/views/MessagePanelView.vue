@@ -125,9 +125,7 @@
               </div>
               <div class="bg-white border-top px-4 py-3">
                 <div class="input-wrapper d-flex align-items-center gap-2">
-                  <button class="btn btn-light rounded-circle">
-                    <i class="bi bi-paperclip text-primary"></i>
-                  </button>
+
                   <textarea ref="textareaRef" v-model="draft" rows="1"
                     class="form-control border-0 shadow-none bg-transparent" placeholder="វាយសាររបស់អ្នក..."
                     @keydown.enter.exact.prevent="sendMessage" @input="autoResize"></textarea>
