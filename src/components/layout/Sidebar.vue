@@ -457,7 +457,7 @@ ul {
   user-select: none;
 }
 
-/* Logout Modal */
+/* Logout Moda l */
 .modal-overlay {
   position: fixed;
   inset: 0;
