@@ -1,13 +1,27 @@
-@import url('https://fonts.googleapis.com/css2?family=Hanuman:wght@100..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hanuman:wght@100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 
 :root {
-  --bs-body-font-family: "Inter", Hanuman, sans-serif, serif;
-
+  /* Roboto is first for English, Hanuman is second for Khmer */
+  --bs-body-font-family: "Roboto", "Hanuman", sans-serif;
 }
+
+/* Apply to everything to ensure consistency */
+* {
+  font-family: "Roboto", "Hanuman", sans-serif !important;
+}
+
 body {
   font-family: var(--bs-body-font-family);
   font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+/* Ensure inputs, buttons, and textareas use the same font stack */
+input, button, textarea, select {
+  font-family: "Roboto", "Hanuman", sans-serif !important;
+}
+
 ::-webkit-validation-bubble-heading {
   font-size: 14px;
   font-weight: bold;

@@ -110,7 +110,7 @@ const router = useRouter()
           <i class="bi bi-envelope-fill"></i>
           <div>
             <strong>នៅតែមានចម្ងល់មែនទេ?</strong>
-            <p>ទាក់ទងមកក្រុមការងារគាំទ្រ Novia ឬអ្នកគ្រប់គ្រងប្រព័ន្ធ ប្រសិនបើអ្នកជួបបញ្ហាបច្ចេកទេស ឬការប្រើប្រាស់គណនី។</p>
+            <p>ទាក់ទងមកក្រុមការងារគាំទ្រ Connexion ឬអ្នកគ្រប់គ្រងប្រព័ន្ធ ប្រសិនបើអ្នកជួបបញ្ហាបច្ចេកទេស ឬការប្រើប្រាស់គណនី។</p>
           </div>
           <button class="btn-faq" @click="router.push('/faq')">
             <i class="bi bi-question-circle"></i> សំណួរដែលសួរញឹកញាប់
@@ -127,7 +127,7 @@ const router = useRouter()
   min-height: 100vh;
   background: #f0f2f5;
   padding: 28px 16px 48px;
-  font-family: 'Kantumruy Pro', sans-serif; /* បន្ថែមហ្វុងខ្មែរប្រសិនបើមាន */
+  font-family: 'Kantumruy Pro', sans-serif; 
 }
 .container {
   max-width: 960px;
