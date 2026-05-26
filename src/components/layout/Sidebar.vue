@@ -282,7 +282,6 @@ ul {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  /* Reduced vertical padding from 0.875rem to 0.55rem */
   padding: 0.55rem 0.75rem;
   border-radius: 10px;
   color: #64748b;
@@ -307,7 +306,6 @@ ul {
 }
 
 .link-icon {
-  /* Reduced icon box size from 32px to 28px */
   width: 28px;
   height: 28px;
   display: flex;
@@ -366,7 +364,6 @@ ul {
   color: #dc2626;
 }
 
-/* Modals & Overlay (Reduced Blur/Darkness for cleaner look) */
 .sidebar-overlay {
   position: fixed;
   inset: 0;
