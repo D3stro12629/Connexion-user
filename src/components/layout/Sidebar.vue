@@ -84,7 +84,7 @@
         <!-- Logout (Static) -->
         <div class="nav-group bottom">
           <span class="nav-label">គណនី</span>
-          <button class="nav-link logout" @click="handleLogout">
+          <button class="nav-link logout" @click="showLogoutModal = true">
             <span class="link-icon">
               <i class="bi bi-box-arrow-left"></i>
             </span>
@@ -94,6 +94,47 @@
       </nav>
     </div>
   </aside>
+
+  <!-- Logout Confirmation Modal -->
+  <Teleport to="body">
+    <Transition name="fade">
+      <div
+        v-if="showLogoutModal"
+        class="modal-overlay"
+        @click.self="showLogoutModal = false"
+      >
+        <Transition name="slide-up">
+          <div v-if="showLogoutModal" class="modal-box" role="dialog" aria-modal="true">
+            <div class="modal-icon">
+              <i class="bi bi-box-arrow-left"></i>
+            </div>
+            <h5 class="modal-title">តើអ្នកចង់ចាកចេញពិតប្រាកដដែលទេ?</h5>
+            <p class="modal-desc">
+              ព័ត៌មានរបស់អ្នកចាកចេញ
+            </p>
+            <div class="modal-actions">
+              <button
+                class="btn-cancel"
+                :disabled="isLoggingOut"
+                @click="showLogoutModal = false"
+              >
+                បោះបង់
+              </button>
+              <button
+                class="btn-logout"
+                :disabled="isLoggingOut"
+                @click="handleLogout"
+              >
+                <span v-if="isLoggingOut" class="spinner"></span>
+                <i v-else class="bi bi-box-arrow-left"></i>
+                {{ isLoggingOut ? 'Logging out...' : 'ចាកចេញ' }}
+              </button>
+            </div>
+          </div>
+        </Transition>
+      </div>
+    </Transition>
+  </Teleport>
 </template>
 
 <script setup>
@@ -134,11 +175,9 @@ const helpItems = [
 
 // FIXED: Improved route matching logic
 const isRouteActive = (itemPath) => {
-  // If we are on the home path, only highlight if path is exactly /home
   if (itemPath === '/home') {
     return route.path === '/home' || route.path === '/'
   }
-  // For other paths, highlight if the current route starts with the menu path
   return route.path.startsWith(itemPath)
 }
 
@@ -149,13 +188,21 @@ const closeSidebarOnMobile = () => {
   }
 }
 
+// Logout modal state
+const showLogoutModal = ref(false)
+const isLoggingOut = ref(false)
+
 const handleLogout = async () => {
+  isLoggingOut.value = true
   try {
     await auth.logout()
   } catch {
     localStorage.removeItem('token')
+  } finally {
+    showLogoutModal.value = false
+    isLoggingOut.value = false
+    router.push('/login')
   }
-  router.push('/login')
 }
 
 // Window resize listener
@@ -180,7 +227,6 @@ watch(() => props.isOpen, (val) => {
 </script>
 
 <style scoped>
-/* ALL YOUR ORIGINAL STYLES REMAIN UNCHANGED */
 .novia-sidebar {
   width: 260px;
   height: calc(100vh - 70px);
@@ -409,5 +455,132 @@ ul {
 .nav-link {
   cursor: pointer;
   user-select: none;
+}
+
+/* Logout Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+}
+
+.modal-box {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 2rem 2rem 1.75rem;
+  width: 100%;
+  max-width: 390px;
+  text-align: center;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+}
+
+.modal-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #fff0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+  font-size: 26px;
+  color: #dc3545;
+}
+
+.modal-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.modal-desc {
+  font-size: 14px;
+  color: #6c757d;
+  line-height: 1.6;
+  margin-bottom: 1.75rem;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-cancel,
+.btn-logout {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: background 0.15s, opacity 0.15s;
+}
+
+.btn-cancel {
+  border: 1px solid #dee2e6;
+  background: transparent;
+  color: #6c757d;
+}
+
+.btn-cancel:hover:not(:disabled) {
+  background: #f8f9fa;
+}
+
+.btn-logout {
+  border: none;
+  background: #fff0f0;
+  color: #dc3545;
+}
+
+.btn-logout:hover:not(:disabled) {
+  background: #ffdede;
+}
+
+.btn-cancel:disabled,
+.btn-logout:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid #f5c6cb;
+  border-top-color: #dc3545;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+.slide-up-enter-from,
+.slide-up-leave-to {
+  transform: translateY(20px);
+  opacity: 0;
 }
 </style>
