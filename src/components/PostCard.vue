@@ -242,7 +242,7 @@ const myAvatar = computed(() =>
 
 // ── Like (static) ──────────────────────
 const liked     = ref(false)
-const likeCount = ref(Math.floor(Math.random() * 20))
+const likeCount = ref(0)
 
 function toggleLike() {
   liked.value = !liked.value

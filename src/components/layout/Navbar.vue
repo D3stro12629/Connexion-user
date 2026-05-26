@@ -80,7 +80,7 @@
                                 <span>ការកំណត់</span>
                             </router-link>
                             <hr class="dropdown-divider">
-                            <button class="dropdown-item" style="color: red;" @click="logout">
+                            <button class="dropdown-item" style="color: red;" @click="showLogoutModal = true">
                                 <i class="bi bi-box-arrow-right"></i>
                                 <span>ចាកចេញ</span>
                             </button>
@@ -90,6 +90,47 @@
             </div>
         </div>
     </nav>
+
+    <!-- Logout Confirmation Modal -->
+    <Teleport to="body">
+        <Transition name="fade">
+            <div
+                v-if="showLogoutModal"
+                class="modal-overlay"
+                @click.self="showLogoutModal = false"
+            >
+                <Transition name="slide-up">
+                    <div v-if="showLogoutModal" class="modal-box" role="dialog" aria-modal="true">
+                        <div class="modal-icon">
+                            <i class="bi bi-box-arrow-right"></i>
+                        </div>
+                        <h5 class="modal-title">តើអ្នកចង់ចាកចេញពិតប្រាកដដែលទេ?</h5>
+                        <p class="modal-desc">
+                    ព័ត៌មានរបស់អ្នកចាកចេញ
+                        </p>
+                        <div class="modal-actions">
+                            <button
+                                class="btn-cancel"
+                                :disabled="isLoggingOut"
+                                @click="showLogoutModal = false"
+                            >
+                                បោះបង់
+                            </button>
+                            <button
+                                class="btn-logout"
+                                :disabled="isLoggingOut"
+                                @click="logout"
+                            >
+                                <span v-if="isLoggingOut" class="spinner-border spinner-border-sm me-1"></span>
+                                <i v-else class="bi bi-box-arrow-right me-1"></i>
+                                {{ isLoggingOut ? 'Logging out...' : 'ចាកចេញ' }}
+                            </button>
+                        </div>
+                    </div>
+                </Transition>
+            </div>
+        </Transition>
+    </Teleport>
 </template>
 
 <script setup>
@@ -116,6 +157,10 @@ const showSearchResults = ref(false)
 const isSearching = ref(false)
 let searchTimeout = null
 
+// Logout modal state
+const showLogoutModal = ref(false)
+const isLoggingOut = ref(false)
+
 // Computed properties for user data
 const userAvatar = computed(() => auth.user?.avatar || 'https://ui-avatars.com/api/?name=User&background=6366f1&color=fff')
 const userName = computed(() => auth.user?.full_name || 'User')
@@ -134,24 +179,28 @@ const closeDropdown = () => {
 }
 
 const logout = async () => {
-  try {
-    await api.post('/api/logout')
-  } catch (err) {
-    console.warn('Logout API failed:', err)
-  } finally {
-    auth.user = null
-    auth.token = null
-    localStorage.removeItem('token')
-    router.push('/login')
-  }
+    isLoggingOut.value = true
+    try {
+        await api.post('/api/logout')
+    } catch (err) {
+        console.warn('Logout API failed:', err)
+    } finally {
+        auth.user = null
+        auth.token = null
+        localStorage.removeItem('token')
+        showLogoutModal.value = false
+        isLoggingOut.value = false
+        router.push('/login')
+    }
 }
+
 const handleSearch = async (e) => {
     const query = e.target.value.trim()
 
     if (searchTimeout) clearTimeout(searchTimeout)
 
     if (!query) {
-        searchResults.value   = []
+        searchResults.value = []
         showSearchResults.value = false
         postStore.searchQuery = ''
         postStore.searchUsers = []
@@ -167,8 +216,8 @@ const handleSearch = async (e) => {
                 postStore.fetchPosts(query),
                 api.get('/api/users/search', { params: { q: query } }).then(res => {
                     const users = res.data.result ? (res.data.data ?? []) : []
-                    searchResults.value     = users   // dropdown
-                    postStore.searchUsers   = users   // feed people section
+                    searchResults.value   = users
+                    postStore.searchUsers = users
                 }),
             ])
         } catch (error) {
@@ -203,7 +252,6 @@ const handleClickOutside = (event) => {
 // Lifecycle
 onMounted(async () => {
     document.addEventListener('click', handleClickOutside)
-    // Fetch user data when component mounts
     if (auth.isLoggedIn) {
         console.log('Navbar: User is logged in, fetching user data...')
         await auth.fetchUser()
@@ -220,18 +268,16 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-
-/* Updated CSS for .novia-navbar */
 .novia-navbar {
-    position: fixed;    /* Changed from sticky to fixed */
+    position: fixed;
     top: 0;
     left: 0;
-    width: 100%;        /* Ensure it spans the full width */
+    width: 100%;
     height: 70px;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
     border-bottom: 1px solid rgba(226, 232, 240, 0.8);
-    z-index: 9999;      /* Set high to stay above everything */
+    z-index: 9999;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
@@ -252,7 +298,6 @@ onUnmounted(() => {
     gap: 1rem;
 }
 
-/* Brand */
 .brand {
     display: flex;
     align-items: center;
@@ -280,7 +325,6 @@ onUnmounted(() => {
     letter-spacing: -0.5px;
 }
 
-/* Search */
 .search-wrapper {
     position: relative;
     width: 100%;
@@ -317,7 +361,6 @@ onUnmounted(() => {
     box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
 }
 
-/* Search Results Dropdown */
 .search-results {
     position: absolute;
     top: calc(100% + 8px);
@@ -418,7 +461,6 @@ onUnmounted(() => {
     font-size: 0.9rem;
 }
 
-/* Actions */
 .nav-actions {
     display: flex;
     align-items: center;
@@ -448,7 +490,6 @@ onUnmounted(() => {
     transform: translateY(-2px);
 }
 
-
 .badge {
     position: absolute;
     top: 6px;
@@ -467,7 +508,6 @@ onUnmounted(() => {
     padding: 0 4px;
 }
 
-/* User Profile Dropdown */
 .user-profile-dropdown {
     position: relative;
 }
@@ -557,6 +597,120 @@ onUnmounted(() => {
     font-size: 0.9rem;
     font-weight: 600;
     color: #1e293b;
+}
+
+/* Logout Modal */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+}
+
+.modal-box {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 2rem 2rem 1.75rem;
+    width: 100%;
+    max-width: 390px;
+    text-align: center;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+}
+
+.modal-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #fff0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.25rem;
+    font-size: 26px;
+    color: #dc3545;
+}
+
+.modal-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 8px;
+}
+
+.modal-desc {
+    font-size: 14px;
+    color: #6c757d;
+    line-height: 1.6;
+    margin-bottom: 1.75rem;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-cancel,
+.btn-logout {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    transition: background 0.15s, opacity 0.15s;
+}
+
+.btn-cancel {
+    border: 1px solid #dee2e6;
+    background: transparent;
+    color: #6c757d;
+}
+
+.btn-cancel:hover:not(:disabled) {
+    background: #f8f9fa;
+}
+
+.btn-logout {
+    border: none;
+    background: #fff0f0;
+    color: #dc3545;
+}
+
+.btn-logout:hover:not(:disabled) {
+    background: #ffdede;
+}
+
+.btn-cancel:disabled,
+.btn-logout:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Modal transitions */
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.2s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+
+.slide-up-enter-active,
+.slide-up-leave-active {
+    transition: transform 0.25s ease, opacity 0.25s ease;
+}
+.slide-up-enter-from,
+.slide-up-leave-to {
+    transform: translateY(20px);
+    opacity: 0;
 }
 
 /* Responsive */
