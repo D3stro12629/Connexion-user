@@ -1,6 +1,6 @@
 <template>
   <aside :class="['novia-sidebar', { 'is-open': isOpen, 'is-mobile': !isDesktop }]">
-    
+
     <!-- Overlay (Mobile) -->
     <div v-if="isOpen && !isDesktop" class="sidebar-overlay" @click="$emit('close')"></div>
 
@@ -20,15 +20,11 @@
       <nav class="sidebar-nav">
         <!-- Main Menu Group -->
         <div class="nav-group">
-          <span class="nav-label">ម៉ឺនុយ</span>
+          <span class="nav-label" style="font-size: 14px;">ម៉ឺនុយ</span>
           <ul>
             <li v-for="item in menuItems" :key="item.key">
-              <router-link
-                :to="item.to"
-                class="nav-link"
-                :class="{ active: isRouteActive(item.to) }"
-                @click="closeSidebarOnMobile"
-              >
+              <router-link :to="item.to" class="nav-link" :class="{ active: isRouteActive(item.to) }"
+                @click="closeSidebarOnMobile">
                 <span class="link-icon">
                   <i :class="['bi', item.icon]"></i>
                 </span>
@@ -41,15 +37,11 @@
 
         <!-- Settings Group -->
         <div class="nav-group">
-          <span class="nav-label">កំណត់</span>
+          <span class="nav-label" style="font-size: 14px;">កំណត់</span>
           <ul>
             <li v-for="item in settingsItems" :key="item.key">
-              <router-link
-                :to="item.to"
-                class="nav-link"
-                :class="{ active: isRouteActive(item.to) }"
-                @click="closeSidebarOnMobile"
-              >
+              <router-link :to="item.to" class="nav-link" :class="{ active: isRouteActive(item.to) }"
+                @click="closeSidebarOnMobile">
                 <span class="link-icon">
                   <i :class="['bi', item.icon]"></i>
                 </span>
@@ -62,15 +54,11 @@
 
         <!-- Help Group -->
         <div class="nav-group">
-          <span class="nav-label">ជំនួយ</span>
+          <span class="nav-label" style="font-size: 14px;">ជំនួយ</span>
           <ul>
             <li v-for="item in helpItems" :key="item.key">
-              <router-link
-                :to="item.to"
-                class="nav-link"
-                :class="{ active: isRouteActive(item.to) }"
-                @click="closeSidebarOnMobile"
-              >
+              <router-link :to="item.to" class="nav-link" :class="{ active: isRouteActive(item.to) }"
+                @click="closeSidebarOnMobile">
                 <span class="link-icon">
                   <i :class="['bi', item.icon]"></i>
                 </span>
@@ -83,7 +71,7 @@
 
         <!-- Logout (Static) -->
         <div class="nav-group bottom">
-          <span class="nav-label">គណនី</span>
+          <span class="nav-label" style="font-size: 14px;">គណនី</span>
           <button class="nav-link logout" @click="showLogoutModal = true">
             <span class="link-icon">
               <i class="bi bi-box-arrow-left"></i>
@@ -95,36 +83,18 @@
     </div>
   </aside>
 
-  <!-- Logout Confirmation Modal -->
+  <!-- Logout Confirmation Modal (Unchanged) -->
   <Teleport to="body">
     <Transition name="fade">
-      <div
-        v-if="showLogoutModal"
-        class="modal-overlay"
-        @click.self="showLogoutModal = false"
-      >
+      <div v-if="showLogoutModal" class="modal-overlay" @click.self="showLogoutModal = false">
         <Transition name="slide-up">
           <div v-if="showLogoutModal" class="modal-box" role="dialog" aria-modal="true">
-            <div class="modal-icon">
-              <i class="bi bi-box-arrow-left"></i>
-            </div>
+            <div class="modal-icon"><i class="bi bi-box-arrow-left"></i></div>
             <h5 class="modal-title">តើអ្នកចង់ចាកចេញពិតប្រាកដដែលទេ?</h5>
-            <p class="modal-desc">
-              ព័ត៌មានរបស់អ្នកចាកចេញ
-            </p>
+            <p class="modal-desc">ព័ត៌មានរបស់អ្នកចាកចេញ</p>
             <div class="modal-actions">
-              <button
-                class="btn-cancel"
-                :disabled="isLoggingOut"
-                @click="showLogoutModal = false"
-              >
-                បោះបង់
-              </button>
-              <button
-                class="btn-logout"
-                :disabled="isLoggingOut"
-                @click="handleLogout"
-              >
+              <button class="btn-cancel" :disabled="isLoggingOut" @click="showLogoutModal = false">បោះបង់</button>
+              <button class="btn-logout" :disabled="isLoggingOut" @click="handleLogout">
                 <span v-if="isLoggingOut" class="spinner"></span>
                 <i v-else class="bi bi-box-arrow-left"></i>
                 {{ isLoggingOut ? 'Logging out...' : 'ចាកចេញ' }}
@@ -142,87 +112,54 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useAuthStores } from '@/stores/auth'
 import { useRouter, useRoute } from 'vue-router'
 
-const props = defineProps({
-  isOpen: Boolean
-})
-
+const props = defineProps({ isOpen: Boolean })
 const emit = defineEmits(['close'])
 
 const auth = useAuthStores()
 const router = useRouter()
 const route = useRoute()
 
-// Responsive logic
 const windowWidth = ref(window.innerWidth)
 const isDesktop = computed(() => windowWidth.value >= 992)
 
-/* Menu Definitions */
 const menuItems = [
-  { key: 'home',     label: 'ទំព័រដើម',    icon: 'bi-house-door', to: '/home' },
-  { key: 'messages', label: 'សារ',         icon: 'bi-chat-dots',  to: '/messages' },
+  { key: 'home', label: 'ទំព័រដើម', icon: 'bi-house-door', to: '/home' },
+  { key: 'messages', label: 'សារ', icon: 'bi-chat-dots', to: '/messages' },
 ]
-
 const settingsItems = [
-  { key: 'settings', label: 'ការកំណត់',    icon: 'bi-gear',         to: '/settings' },
-  { key: 'privacy',  label: 'ឯកសារឯកជន',   icon: 'bi-shield-check', to: '/privacy' },
+  { key: 'settings', label: 'ការកំណត់', icon: 'bi-gear', to: '/settings' },
+  { key: 'privacy', label: 'ឯកសារឯកជន', icon: 'bi-shield-check', to: '/privacy' },
 ]
-
 const helpItems = [
-  { key: 'about', label: 'អំពីពួកយើង',     icon: 'bi-info-circle',    to: '/about' },
-  { key: 'faq',   label: 'សំណួរ',          icon: 'bi-question-circle', to: '/faq' },
-  { key: 'help',  label: 'ជំនួយ',          icon: 'bi-life-preserver',  to: '/help' },
+  { key: 'about', label: 'អំពីពួកយើង', icon: 'bi-info-circle', to: '/about' },
+  { key: 'faq', label: 'សំណួរ', icon: 'bi-question-circle', to: '/faq' },
+  { key: 'help', label: 'ជំនួយ', icon: 'bi-life-preserver', to: '/help' },
 ]
 
-// FIXED: Improved route matching logic
 const isRouteActive = (itemPath) => {
-  if (itemPath === '/home') {
-    return route.path === '/home' || route.path === '/'
-  }
+  if (itemPath === '/home') return route.path === '/home' || route.path === '/'
   return route.path.startsWith(itemPath)
 }
 
-// Close sidebar when clicking a link on mobile
-const closeSidebarOnMobile = () => {
-  if (!isDesktop.value) {
-    emit('close')
-  }
-}
+const closeSidebarOnMobile = () => { if (!isDesktop.value) emit('close') }
 
-// Logout modal state
 const showLogoutModal = ref(false)
 const isLoggingOut = ref(false)
-
 const handleLogout = async () => {
   isLoggingOut.value = true
-  try {
-    await auth.logout()
-  } catch {
-    localStorage.removeItem('token')
-  } finally {
+  try { await auth.logout() } catch { localStorage.removeItem('token') }
+  finally {
     showLogoutModal.value = false
     isLoggingOut.value = false
     router.push('/login')
   }
 }
 
-// Window resize listener
-const handleResize = () => {
-  windowWidth.value = window.innerWidth
-}
-
-onMounted(() => {
-  window.addEventListener('resize', handleResize)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('resize', handleResize)
-})
-
-// Prevent scroll when mobile menu is open
+const handleResize = () => { windowWidth.value = window.innerWidth }
+onMounted(() => { window.addEventListener('resize', handleResize) })
+onUnmounted(() => { window.removeEventListener('resize', handleResize) })
 watch(() => props.isOpen, (val) => {
-  if (!isDesktop.value) {
-    document.body.style.overflow = val ? 'hidden' : ''
-  }
+  if (!isDesktop.value) document.body.style.overflow = val ? 'hidden' : ''
 })
 </script>
 
@@ -235,7 +172,7 @@ watch(() => props.isOpen, (val) => {
   top: 70px;
   background: rgba(255, 255, 255, 0.98);
   border-right: 1px solid #e2e8f0;
-  z-index: 1020;
+  z-index: 1040;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
@@ -245,8 +182,6 @@ watch(() => props.isOpen, (val) => {
   transform: translateX(-100%);
   top: 0;
   height: 100vh;
-  z-index: 1040;
-  background: white;
 }
 
 .novia-sidebar.is-mobile.is-open {
@@ -257,7 +192,8 @@ watch(() => props.isOpen, (val) => {
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 1.5rem 1rem;
+  /* Reduced from 1.5rem 1rem */
+  padding: 0.75rem 0.85rem;
   overflow-y: auto;
 }
 
@@ -265,8 +201,9 @@ watch(() => props.isOpen, (val) => {
   display: none;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
+  /* Reduced from 2rem */
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
   border-bottom: 1px solid #f1f5f9;
 }
 
@@ -280,34 +217,27 @@ watch(() => props.isOpen, (val) => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: #1e293b;
 }
 
 .brand-sm i {
   color: #6366f1;
-  font-size: 1.5rem;
+  font-size: 1.35rem;
 }
 
 .close-btn {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: 8px;
-  border: none;
   background: #f1f5f9;
+  border: none;
   color: #64748b;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s;
-}
-
-.close-btn:hover {
-  background: #e2e8f0;
-  color: #1e293b;
-  transform: rotate(90deg);
 }
 
 .sidebar-nav {
@@ -317,25 +247,25 @@ watch(() => props.isOpen, (val) => {
 }
 
 .nav-group {
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }
 
 .nav-group.bottom {
   margin-top: auto;
-  margin-bottom: 0;
-  padding-top: 1.5rem;
+  padding-top: 0.75rem;
   border-top: 1px solid #f1f5f9;
 }
 
 .nav-label {
   display: block;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: #94a3b8;
   font-weight: 600;
-  margin-bottom: 0.75rem;
-  padding-left: 1rem;
+  /* Reduced from 0.75rem */
+  margin-bottom: 0.35rem;
+  padding-left: 0.75rem;
 }
 
 ul {
@@ -344,75 +274,89 @@ ul {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  /* Added small gap between li items */
+  gap: 2px;
 }
 
 .nav-link {
   display: flex;
   align-items: center;
-  gap: 0.875rem;
-  padding: 0.875rem 1rem;
-  border-radius: 12px;
+  gap: 0.75rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 10px;
   color: #64748b;
   text-decoration: none;
   font-weight: 500;
   position: relative;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow: hidden;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  user-select: none;
 }
 
 .nav-link:hover {
   background: #f8fafc;
   color: #6366f1;
-  transform: translateX(4px);
+  transform: translateX(3px);
 }
 
 .nav-link.active {
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   color: white;
-  box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 4px 10px -2px rgba(99, 102, 241, 0.2);
 }
 
 .link-icon {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  font-size: 1.1rem;
+  border-radius: 6px;
+  font-size: 1rem;
   transition: all 0.3s;
 }
 
 .nav-link:hover .link-icon {
-  background: rgba(99, 102, 241, 0.1);
+  background: rgba(99, 102, 241, 0.08);
 }
 
 .nav-link.active .link-icon {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .link-text {
   flex: 1;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .active-indicator {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   background: white;
   border-radius: 50%;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
   animation: pulse-dot 2s infinite;
 }
 
 @keyframes pulse-dot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.7; transform: scale(1.2); }
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.7;
+    transform: scale(1.2);
+  }
 }
 
 .nav-link.logout {
   color: #ef4444;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
 }
 
 .nav-link.logout:hover {
@@ -420,44 +364,14 @@ ul {
   color: #dc2626;
 }
 
-.nav-link.logout .link-icon {
-  background: #fef2f2;
-}
-
 .sidebar-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+  background: rgba(15, 23, 42, 0.3);
+  backdrop-filter: blur(2px);
   z-index: 1030;
 }
 
-@media (max-width: 991px) {
-  .sidebar-mobile-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 2rem;
-  }
-}
-
-.novia-sidebar {
-  z-index: 1040;
-}
-
-.nav-link.logout {
-  border: none;
-  background: none;
-  width: 100%;
-  text-align: left;
-  cursor: pointer;
-}
-
-.nav-link {
-  cursor: pointer;
-  user-select: none;
-}
-
-/* Logout Modal */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -522,7 +436,7 @@ ul {
   align-items: center;
   justify-content: center;
   gap: 5px;
-  transition: background 0.15s, opacity 0.15s;
+  transition: background 0.15s;
 }
 
 .btn-cancel {
@@ -531,24 +445,10 @@ ul {
   color: #6c757d;
 }
 
-.btn-cancel:hover:not(:disabled) {
-  background: #f8f9fa;
-}
-
 .btn-logout {
   border: none;
   background: #fff0f0;
   color: #dc3545;
-}
-
-.btn-logout:hover:not(:disabled) {
-  background: #ffdede;
-}
-
-.btn-cancel:disabled,
-.btn-logout:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
 }
 
 .spinner {
@@ -562,13 +462,16 @@ ul {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.2s ease;
 }
+
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
@@ -578,6 +481,7 @@ ul {
 .slide-up-leave-active {
   transition: transform 0.25s ease, opacity 0.25s ease;
 }
+
 .slide-up-enter-from,
 .slide-up-leave-to {
   transform: translateY(20px);
