@@ -265,7 +265,7 @@ function submitComment() {
   commentDraft.value = ''
 }
 
-// ── Share ──────────────────────────────
+// ── Share  ──────────────────────────────
 const showShare = ref(false)
 const copied    = ref(false)
 const shareRef  = ref(null)
@@ -310,7 +310,7 @@ function onClickOutside(e) {
 onMounted(() => document.addEventListener('click', onClickOutside))
 onUnmounted(() => document.removeEventListener('click', onClickOutside))
 
-// ── Helpers ────────────────────────────
+// ── Helpers  ────────────────────────────
 function formatDate(d) {
   return new Date(d).toLocaleDateString()
 }
