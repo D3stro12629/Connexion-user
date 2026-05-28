@@ -125,9 +125,10 @@ function userAvatar(user) {
 }
 
 function handleEdit(post) {
+  console.log(post)
   editingPost.value        = post
   isEditing.value          = true
-  content.value            = post?.content || ''
+  content.value            = post?.text || ''
   selectedCategories.value = post?.categories?.map(c => c.id) || []
   imagePreview.value       = post?.image || null
   image.value              = null
@@ -408,7 +409,8 @@ async function submitPost() {
       </div>
 
       <!-- Image preview -->
-      <div v-if="imagePreview" class="mc-preview-wrap">
+       <!-- {{ imagePreview }} -->
+      <div v-if="imagePreview != 'https://api-novia.g2.ant.com.kh/storage/posts'" class="mc-preview-wrap">
         <img :src="imagePreview" class="mc-preview-img" />
         <button class="mc-remove-img" @click="imagePreview = null; image = null">
           <i class="bi bi-x-circle-fill"></i>

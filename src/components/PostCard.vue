@@ -172,43 +172,39 @@
       </Transition>
 
 <BaseModal v-if="showDeleteModal" @closeModal="!isDeleting && (showDeleteModal = false)">
-  <template #header>
-    <div class="delete-modal-icon">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-        <path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
-          stroke="#e11d48" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </div>
-  </template>
-
   <template #body>
-    <div class="delete-modal-body">
-      <h5 class="delete-modal-title">តើអ្នកចង់លុបពិតប្រាកដទេ</h5>
-      <p class="delete-modal-desc">អ្នកពិតជាចង់លុបមែនទេ? សកម្មភាពនេះមិនអាចត្រឡប់វិញបានទេ។</p>
-    </div>
-  </template>
+    <div class="modal-inner">
 
-  <template #footer>
-    <div class="delete-modal-footer">
-      <button
-        class="btn-delete"
-        :disabled="isDeleting"
-        @click="confirmDelete"
-      >
-        <span
-          v-if="isDeleting"
-          class="btn-spinner"
-        ></span>
-        <span>{{ isDeleting ? 'កំពុងលុប...' : 'លុបការបង្ហោះ' }}</span>
-      </button>
+      <!-- Icon -->
+      <div class="modal-icon-circle">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"
+            stroke="#DC2626" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M10 11v5M14 11v5" stroke="#DC2626" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </div>
 
-      <button
-        class="btn-cancel"
-        :disabled="isDeleting"
-        @click="showDeleteModal = false"
-      >
-        បោះបង់
-      </button>
+      <!-- Text -->
+      <div class="modal-text">
+        <h5>តើអ្នកចង់លុបពិតប្រាកដទេ?</h5>
+        <p>អ្នកពិតជាចង់លុបមែនទេ? សកម្មភាពនេះមិនអាចត្រឡប់វិញបានទេ។</p>
+      </div>
+
+      <!-- Buttons -->
+      <div class="modal-actions">
+        <button class="btn-cancel" :disabled="isDeleting" @click="showDeleteModal = false">
+          បោះបង់
+        </button>
+        <button class="btn-delete" :disabled="isDeleting" @click="confirmDelete">
+          <span v-if="isDeleting" class="btn-spinner"></span>
+          <svg v-else width="15" height="15" viewBox="0 0 24 24" fill="none">
+            <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"
+              stroke="#DC2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          {{ isDeleting ? 'កំពុងលុប...' : 'លុបការបង្ហោះ' }}
+        </button>
+      </div>
+
     </div>
   </template>
 </BaseModal>
@@ -326,6 +322,7 @@ function formatDate(d) {
 // }
 const emit =  defineEmits(['editPost'])
 function showModal(){
+
   emit('editPost')
 }
 // AFTER
@@ -623,116 +620,69 @@ async function confirmDelete() {
   .act-btn { padding: 8px 10px; font-size: .8rem; }
 }
 
-/* Icon */
-.delete-modal-icon {
-  display: flex;
-  justify-content: center;
-  padding-top: 8px;
-}
-
-.delete-modal-icon svg {
-  background: #fff1f2;
-  border-radius: 50%;
-  padding: 14px;
-  width: 56px;
-  height: 56px;
-}
-
-/* Body */
-.delete-modal-body {
-  text-align: center;
-  padding: 8px 16px 0;
-}
-
-.delete-modal-title {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: #111827;
-  margin-bottom: 8px;
-}
-
-.delete-modal-desc {
-  font-size: 0.875rem;
-  color: #6b7280;
-  line-height: 1.6;
-  margin: 0;
-}
-
-/* Footer */
-.delete-modal-footer {
+.modal-inner {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  width: 100%;
-  padding: 8px 0 4px;
+  align-items: center;
+  text-align: center;
+  gap: 1.25rem;
+  padding: 2rem 1.75rem 1.5rem;
 }
-
-/* Delete button */
-.btn-delete {
-  width: 100%;
-  padding: 12px;
-  background: #e11d48;
-  color: #fff;
-  font-size: 0.95rem;
+.modal-icon-circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #FEE2E2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-text h5 {
+  font-size: 17px;
   font-weight: 600;
-  border: none;
-  border-radius: 10px;
+  color: #111;
+  margin: 0 0 6px;
+}
+.modal-text p {
+  font-size: 13.5px;
+  color: #888;
+  margin: 0;
+  line-height: 1.6;
+}
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+.btn-cancel, .btn-delete {
+  flex: 1;
+  padding: 13px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  transition: background 0.2s ease, transform 0.1s ease;
+  gap: 7px;
 }
-
-.btn-delete:hover:not(:disabled) {
-  background: #be123c;
-}
-
-.btn-delete:active:not(:disabled) {
-  transform: scale(0.98);
-}
-
-.btn-delete:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-/* Cancel button */
 .btn-cancel {
-  width: 100%;
-  padding: 12px;
   background: #fff;
-  color: #374151;
-  font-size: 0.95rem;
-  font-weight: 500;
-  border: 1.5px solid #e5e7eb;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background 0.2s ease;
+  border: 1px solid #e5e7eb;
+  color: #333;
 }
-
-.btn-cancel:hover:not(:disabled) {
-  background: #f9fafb;
+.btn-delete {
+  background: #FEE2E2;
+  border: none;
+  color: #DC2626;
 }
-
-.btn-cancel:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Spinner */
+.btn-delete:disabled { opacity: 0.6; cursor: not-allowed; }
 .btn-spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  border-top-color: #fff;
+  width: 14px; height: 14px;
+  border: 2px solid rgba(220,38,38,0.3);
+  border-top-color: #DC2626;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
-  display: inline-block;
 }
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 </style>
