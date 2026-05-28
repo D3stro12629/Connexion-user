@@ -31,6 +31,7 @@
       router.push(getReturnPath())
     }
   }
+
   const content = ref('')
   const image = ref<File | null>(null)
   const imagePreview = ref<string | null>(null)
@@ -203,10 +204,8 @@
 
 
             <textarea
-            
               ref="textarea"
               v-model="content"
-              
               class="textarea"
               placeholder="តើអ្នកមានគំនិតបែបមិច?"
               @input="autoResize"
