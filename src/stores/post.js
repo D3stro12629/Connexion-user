@@ -12,9 +12,6 @@ export const usePostStore = defineStore('post', () => {
   const searchUsers = ref([])   // users matching the current search — shown in HomeView feed
 
   // ── Pagination ─────────────────────────────────────────
-  // Shape from API response:
-  // paginate: { has_page, on_first_page, has_more_pages,
-  //             first_item, last_item, total, current_page, last_page }
   const pagination = reactive({
     has_page:       false,
     on_first_page:  true,
@@ -27,17 +24,6 @@ export const usePostStore = defineStore('post', () => {
   })
 
   // ── GET /api/posts ─────────────────────────────────────
-  // params: { search?, page?, per_page?, category? }
-  //
-  // Response:
-  // {
-  //   result: true, code: 1, message: "Get all posts successfully.",
-  //   data: [                          ← array lives here, NOT at res.data
-  //     { id, text, image, attachments, created_at, creator, categories }
-  //   ],
-  //   paginate: { has_page, on_first_page, has_more_pages,
-  //               first_item, last_item, total, current_page, last_page }
-  // }
   async function fetchPosts(search = '', page = 1, perPage = 20, category = 0) {
     try {
       const res = await api.get('/api/posts', {
@@ -49,7 +35,6 @@ export const usePostStore = defineStore('post', () => {
         },
       })
 
- 
       posts.value = res.data.data ?? []
 
       const p = res.data.paginate ?? {}
@@ -68,7 +53,7 @@ export const usePostStore = defineStore('post', () => {
     }
   }
 
-  // ── GET /api/posts (with append for pagination) ─────────────────────────────────
+  // ── GET /api/posts (with append for pagination) ────────
   async function fetchPostsAppend(search = '', page = 1, perPage = 20, category = 0) {
     try {
       const res = await api.get('/api/posts', {
@@ -80,13 +65,11 @@ export const usePostStore = defineStore('post', () => {
         },
       })
 
-      // APPEND posts instead of replacing for pagination
       if (page > 1) {
         posts.value = [...posts.value, ...(res.data.data ?? [])]
       } else {
         posts.value = res.data.data ?? []
       }
-
 
       const p = res.data.paginate ?? {}
       pagination.has_page       = p.has_page       ?? false
@@ -105,18 +88,12 @@ export const usePostStore = defineStore('post', () => {
   }
 
   // ── POST /api/posts ────────────────────────────────────
-  // payload: FormData { text, image?, attachments?, categories[]? }
-  //
-  // Response:
-  // { result: true, code: 1, message: "Add new post successfully.",
-  //   data: { id, text, image, attachments, created_at, creator, categories } }
   async function addPost(payload) {
     try {
       const res = await api.post('/api/posts', payload, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
       if (res.data.result) {
-        // Prepend new post to the top of the feed
         posts.value.unshift(res.data.data)
         pagination.total = (pagination.total ?? 0) + 1
       }
@@ -128,8 +105,6 @@ export const usePostStore = defineStore('post', () => {
   }
 
   // ── GET /api/posts/:id ─────────────────────────────────
-  // Response: { result, code, message,
-  //   data: { id, text, image, attachments, created_at, creator, categories } }
   async function fetchPostById(id) {
     try {
       const res = await api.get(`/api/posts/${id}`)
@@ -143,19 +118,7 @@ export const usePostStore = defineStore('post', () => {
     }
   }
 
-  // ── GET /api/user/posts ─────────────────────────────
-  // Fetch user's own posts with pagination
-  // params: { page?, per_page? }
-  //
-  // Response:
-  // {
-  //   result: true, code: 1, message: "Get user posts successfully.",
-  //   data: [                          ← array lives here
-  //     { id, text, image, attachments, created_at, creator, categories }
-  //   ],
-  //   paginate: { has_page, on_first_page, has_more_pages,
-  //               first_item, last_item, total, current_page, last_page }
-  // }
+  // ── GET /api/user/posts ────────────────────────────────
   async function fetchOwnPosts(page = 1, perPage = 20) {
     try {
       const res = await api.get('/api/user/posts', {
@@ -165,9 +128,7 @@ export const usePostStore = defineStore('post', () => {
         },
       })
 
-     
       ownPosts.value = res.data.data ?? []
-
 
       const p = res.data.paginate ?? {}
       pagination.has_page       = p.has_page       ?? false
@@ -185,7 +146,7 @@ export const usePostStore = defineStore('post', () => {
     }
   }
 
-  // ── GET /api/user/posts (with append for pagination) ─────────────────
+  // ── GET /api/user/posts (with append for pagination) ───
   async function fetchOwnPostsAppend(page = 1, perPage = 20) {
     try {
       const res = await api.get('/api/user/posts', {
@@ -195,15 +156,12 @@ export const usePostStore = defineStore('post', () => {
         },
       })
 
-      // APPEND posts instead of replacing for pagination
       if (page > 1) {
         ownPosts.value = [...ownPosts.value, ...(res.data.data ?? [])]
       } else {
         ownPosts.value = res.data.data ?? []
       }
 
-      // ✅ FIXED: was res.data (the full response object)
-      //          must be res.data.data (the actual posts array)
       const p = res.data.paginate ?? {}
       pagination.has_page       = p.has_page       ?? false
       pagination.on_first_page  = p.on_first_page  ?? true
@@ -221,9 +179,6 @@ export const usePostStore = defineStore('post', () => {
   }
 
   // ── GET /api/user/posts/:id ────────────────────────────
-  // Fetch a specific post that belongs to the current user
-  // Response: { result, code, message,
-  //   data: { id, text, image, attachments, created_at, creator, categories } }
   async function fetchOwnPostById(id) {
     try {
       const res = await api.get(`/api/user/posts/${id}`)
@@ -237,40 +192,27 @@ export const usePostStore = defineStore('post', () => {
     }
   }
 
-  // ── UPDATE /api/posts/:id ───────────────────────────────
-  // payload: FormData { text, image?, attachments?, categories[]? }
-  //
-  // Response:
-  // { result: true, code: 1, message: "Update post successfully.",
-  //   data: { id, text, image, attachments, created_at, creator, categories } }
-  async function updatePost(id, payload) {
-    try {
-      const res = await api.post(`/api/posts/${id}`, payload, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
-      if (res.data.result) {
-        // Update the post in the array
-        const index = posts.value.findIndex(p => p.id === id)
-        if (index !== -1) {
-          posts.value[index] = res.data.data
-        }
-        const ownIndex = ownPosts.value.findIndex(p => p.id === id)
-        if (ownIndex !== -1) {
-          ownPosts.value[ownIndex] = res.data.data
-        }
-        if (post.value?.id === id) {
-          post.value = res.data.data
-        }
-      }
-      return res
-    } catch (error) {
-      console.error('Failed to update post:', error)
-      throw error
-    }
-  }
+  // ── UPDATE /api/posts/:id ──────────────────────────────
 
+async function updatePost(id, payload) {
+  try {
+  const res = await api.post(`/api/posts/${id}?_method=POST`, payload, {
+  headers: { 'Content-Type': 'multipart/form-data' },
+})
+    if (res.data.result) {
+      const index = posts.value.findIndex(p => p.id === id)
+      if (index !== -1) posts.value[index] = res.data.data
+      const ownIndex = ownPosts.value.findIndex(p => p.id === id)
+      if (ownIndex !== -1) ownPosts.value[ownIndex] = res.data.data
+      if (post.value?.id === id) post.value = res.data.data
+    }
+    return res
+  } catch (error) {
+    console.error('Failed to update post:', error)
+    throw error
+  }
+}
   // ── DELETE /api/posts/:id ──────────────────────────────
-  // Response: { result: true, code: 1, message: "...", data: null }
   async function deletePost(id) {
     try {
       const res = await api.delete(`/api/posts/${id}`)
