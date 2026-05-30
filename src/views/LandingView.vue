@@ -190,7 +190,7 @@ background: linear-gradient(135deg, #7b2cbf, #c77dff);
 }
 .text-purple { color: #7b2cbf; }
 
-/* --- Navbar --- */
+/* --- Navbar i--- */
 .navbar-glass {
 background: rgba(255, 255, 255, 0.8);
 backdrop-filter: blur(10px);
