@@ -54,7 +54,6 @@
         <span v-if="errors.new_pass" class="rp-error">{{ errors.new_pass }}</span>
       </div>
 
-      <!-- Confirm Password -->
       <div class="rp-field">
         <label class="rp-label">បញ្ចាក់ពាក្យសម្ងាត់</label>
         <div class="rp-input-wrap" :class="{ 'is-focused': focusConfirm, 'has-error': errors.new_pass_confirmation, 'is-match': matchOk }">
@@ -98,8 +97,7 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="15 18 9 12 15 6"/>
           </svg>
-    
-ត្រលប់ទៅការផ្ទៀងផ្ទាត់ OTP
+          ត្រលប់ទៅការផ្ទៀងផ្ទាត់ OTP
         </router-link>
       </div>
 
@@ -218,19 +216,19 @@ async function handleSubmit() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #f0f4ff 0%, #f5f0ff 100%);
+  background: #0d1021;
   padding: 1.5rem;
   font-family: 'Segoe UI', system-ui, sans-serif;
 }
 
 /* ─── Card ─── */
 .rp-card {
-  background: #ffffff;
-  border-radius: 24px;
+  background: #1a1d2e;
+  border-radius: 20px;
   padding: 2.5rem 2.25rem 2rem;
   width: 100%;
   max-width: 420px;
-  box-shadow: 0 2px 0 #e0e7ff, 0 20px 60px rgba(99, 102, 241, 0.1);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05);
   animation: slideUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
@@ -244,20 +242,20 @@ async function handleSubmit() {
 .rp-icon-circle {
   width: 64px;
   height: 64px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border-radius: 50%;
+  background: #2a2d3e;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+  color: #9ca3af;
+  box-shadow: none;
 }
 
 /* ─── Heading ─── */
 .rp-title {
   font-size: 22px;
   font-weight: 700;
-  color: #111827;
+  color: #ffffff;
   text-align: center;
   margin: 0 0 0.35rem;
   letter-spacing: -0.4px;
@@ -265,10 +263,10 @@ async function handleSubmit() {
 
 .rp-subtitle {
   font-size: 13.5px;
-  color: #9ca3af;
+  color: #6b7280;
   text-align: center;
   margin: 0 0 2rem;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 /* ─── Field ─── */
@@ -280,7 +278,7 @@ async function handleSubmit() {
   display: block;
   font-size: 13px;
   font-weight: 600;
-  color: #374151;
+  color: #d1d5db;
   margin-bottom: 7px;
 }
 
@@ -288,16 +286,16 @@ async function handleSubmit() {
 .rp-input-wrap {
   display: flex;
   align-items: center;
-  border: 1.5px solid #e5e7eb;
+  border: 1.5px solid rgba(255, 255, 255, 0.07);
   border-radius: 12px;
-  background: #f9fafb;
-  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  background: #22263a;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .rp-input-wrap.is-focused {
-  border-color: #6366f1;
-  background: #fff;
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+  border-color: #7c3aed;
+  background: #22263a;
+  box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15);
 }
 
 .rp-input-wrap.has-error {
@@ -317,12 +315,12 @@ async function handleSubmit() {
   background: transparent;
   padding: 0 12px;
   font-size: 14px;
-  color: #111827;
+  color: #f3f4f6;
   outline: none;
   font-family: inherit;
 }
 
-.rp-input::placeholder { color: #d1d5db; }
+.rp-input::placeholder { color: #4b5563; }
 .rp-input:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* ─── Eye / check ─── */
@@ -331,14 +329,14 @@ async function handleSubmit() {
   border: none;
   padding: 0 12px;
   cursor: pointer;
-  color: #9ca3af;
+  color: #4b5563;
   display: flex;
   align-items: center;
   height: 46px;
   transition: color 0.15s;
 }
 
-.rp-eye:hover { color: #6366f1; }
+.rp-eye:hover { color: #a78bfa; }
 
 .rp-check {
   display: flex;
@@ -366,7 +364,7 @@ async function handleSubmit() {
   flex: 1;
   height: 4px;
   border-radius: 99px;
-  background: #e5e7eb;
+  background: #2a2d3e;
   transition: background 0.3s;
 }
 
@@ -392,7 +390,7 @@ async function handleSubmit() {
 .rp-error {
   display: block;
   font-size: 12px;
-  color: #ef4444;
+  color: #f87171;
   margin-top: 5px;
 }
 
@@ -402,7 +400,7 @@ async function handleSubmit() {
   height: 50px;
   border-radius: 12px;
   border: none;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  background: linear-gradient(90deg, #7c3aed 0%, #a855f7 100%);
   color: #fff;
   font-size: 15px;
   font-weight: 600;
@@ -415,19 +413,19 @@ async function handleSubmit() {
   margin-top: 0.5rem;
   margin-bottom: 1.5rem;
   letter-spacing: 0.2px;
-  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+  box-shadow: 0 4px 24px rgba(168, 85, 247, 0.45);
   transition: opacity 0.2s, transform 0.1s, box-shadow 0.2s;
 }
 
 .rp-btn:hover:not(:disabled) {
-  opacity: 0.92;
-  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+  opacity: 0.93;
+  box-shadow: 0 6px 32px rgba(168, 85, 247, 0.6);
 }
 
 .rp-btn:active:not(:disabled) { transform: scale(0.98); }
 
 .rp-btn:disabled {
-  opacity: 0.55;
+  opacity: 0.45;
   cursor: not-allowed;
   box-shadow: none;
 }
@@ -436,7 +434,7 @@ async function handleSubmit() {
 .rp-spinner {
   width: 16px;
   height: 16px;
-  border: 2.5px solid rgba(255, 255, 255, 0.35);
+  border: 2.5px solid rgba(255, 255, 255, 0.3);
   border-top-color: #fff;
   border-radius: 50%;
   animation: spin 0.65s linear infinite;
@@ -451,17 +449,17 @@ async function handleSubmit() {
   align-items: center;
   gap: 5px;
   font-size: 13px;
-  color: #9ca3af;
+  color: #6b7280;
   text-decoration: none;
   transition: color 0.15s;
 }
 
-.rp-back-link:hover { color: #6366f1; }
+.rp-back-link:hover { color: #a78bfa; }
 
 /* ─── Animations ─── */
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(20px) scale(0.98); }
-  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 @keyframes spin {

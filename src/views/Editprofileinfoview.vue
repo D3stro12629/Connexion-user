@@ -1,324 +1,272 @@
 <template>
   <DashboardLayout>
-    <div class="edit-profile-page min-vh-100">
-      <div class="container py-4">
-        <!-- Page Header -->
-        <div class="d-flex align-items-center gap-3 mb-4 pb-2 border-bottom border-purple">
-          <button class="btn btn-link text-dark p-0 text-decoration-none" @click="$router.back()">
+    <div class="edit-profile-page min-vh-100 py-4" style="background-color: #f5f7fa;">
+      <div class="container" style="max-width: 800px;">
+        
+        <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom" style="border-color: #e9ecef !important;">
+          <button class="back-btn btn bg-white d-flex align-items-center justify-content-center" @click="$router.back()">
             <ArrowLeft :size="20" />
           </button>
-          <div class="icon-circle-primary d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
-            <UserCog :size="22" class="icon-primary" />
+          <div class="header-icon d-flex align-items-center justify-content-center rounded-4">
+            <UserCog :size="22" />
           </div>
           <div>
-            <h1 class="h4 fw-bold mb-1" style="color: #2C2C2A;">កែសម្រួលប្រវត្តិរូប</h1>
-            <p class="text-secondary small mb-0">ធ្វើបច្ចុប្បន្នភាពព័ត៌មានផ្ទាល់ខ្លួន និងវិជ្ជាជីវៈរបស់អ្នក</p>
+            <h1 class="h4 fw-bold m-0" style="color: #1a1a2e;">កែសម្រួលប្រវត្តិរូប</h1>
+            <p class="small m-0" style="color: #6c757d;">ធ្វើបច្ចុប្បន្នភាពព័ត៌មានផ្ទាល់ខ្លួន និងវិជ្ជាជីវៈរបស់អ្នក</p>
           </div>
         </div>
 
-        <div class="row g-4">
-          <!-- LEFT COLUMN: Personal Information -->
-          <div class="col-lg-6">
-            <div class="card border-0 rounded-4">
-              <div class="card-header bg-white border-0 pt-4 pb-0 px-4">
-                <div class="d-flex align-items-center gap-2">
-                  <div class="icon-circle-primary rounded-circle p-1">
-                    <User :size="16" class="icon-primary" />
-                  </div>
-                  <h3 class="h6 fw-semibold mb-0" style="color: #2C2C2A;">ព័ត៌មានផ្ទាល់ខ្លួន</h3>
+        <div class="tabs p-1 bg-white rounded-pill shadow-sm mb-4 row mx-0 text-center">
+          <div class="col p-0">
+            <button 
+              class="tab-btn w-100 rounded-pill d-flex align-items-center justify-content-center gap-2 py-2 fs-6 border-0"
+              :class="{ active: activeTab === 'personal' }"
+              @click="activeTab = 'personal'"
+            >
+              <User :size="18" />
+              <span class="d-none d-sm-inline">ព័ត៌មានផ្ទាល់ខ្លួន</span>
+            </button>
+          </div>
+          <div class="col p-0">
+            <button 
+              class="tab-btn w-100 rounded-pill d-flex align-items-center justify-content-center gap-2 py-2 fs-6 border-0"
+              :class="{ active: activeTab === 'professional' }"
+              @click="activeTab = 'professional'"
+            >
+              <Briefcase :size="18" />
+              <span class="d-none d-sm-inline">ព័ត៌មានវិជ្ជាជីវៈ</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="tab-content">
+          <div v-if="activeTab === 'personal'" class="card border-0 rounded-4 shadow-sm overflow-hidden bg-white">
+            <div class="card-header border-bottom px-4 py-3 d-flex align-items-center gap-3" style="background-color: #fafbfc; border-color: #eef2f6 !important;">
+              <div class="header-badge primary d-flex align-items-center justify-content-center rounded-3">
+                <User :size="16" />
+              </div>
+              <div>
+                <h3 class="h6 fw-bold m-0" style="color: #1a1a2e;">ព័ត៌មានផ្ទាល់ខ្លួន</h3>
+                <p class="small m-0" style="color: #6c757d;">ព័ត៌មានលម្អិតជាមូលដ្ឋានអំពីអ្នក</p>
+              </div>
+            </div>
+
+            <div class="card-body p-4">
+              <!-- Full Name -->
+              <div class="mb-3">
+                <label class="form-label small fw-bold" style="color: #2c3e50;">ឈ្មោះពេញ <span class="text-danger">*</span></label>
+                <input 
+                  v-model="personal.full_name"
+                  type="text"
+                  class="form-control form-control-lg rounded-3 fs-6 custom-input"
+                  :class="{ 'is-invalid': validationErrors.full_name }"
+                  placeholder="បញ្ចូលឈ្មោះពេញរបស់អ្នក"
+                  @blur="validateField('full_name')"
+                />
+                <div v-if="validationErrors.full_name" class="invalid-feedback d-block">
+                  {{ validationErrors.full_name }}
                 </div>
-                <p class="small text-secondary mt-1 mb-0 ms-4 ps-1">ព័ត៌មានលម្អិតជាមូលដ្ឋានអំពីអ្នក</p>
               </div>
 
-              <div class="card-body p-4 pt-3">
-                <!-- Full Name -->
-                <div class="mb-3">
-                  <label class="form-label small fw-semibold text-secondary mb-1">
-                    ឈ្មោះពេញ <span class="text-danger">*</span>
-                  </label>
-                  <div class="input-group">
-                    <span class="input-group-text input-icon border-end-0">
-                      <User :size="15" class="icon-muted" />
-                    </span>
-                    <input
-                      v-model="personal.full_name"
-                      type="text"
-                      class="form-control custom-input border-start-0"
-                      placeholder="បញ្ចូលឈ្មោះពេញរបស់អ្នក"
-                    />
+              <div class="row g-3 mb-3">
+                <div class="col-12 col-md-6">
+                  <label class="form-label small fw-bold" style="color: #2c3e50;">ថ្ងៃខែឆ្នាំកំណើត <span class="text-danger">*</span></label>
+                  <input 
+                    v-model="personal.dob"
+                    type="date"
+                    class="form-control form-control-lg rounded-3 fs-6 custom-input"
+                    :class="{ 'is-invalid': validationErrors.dob }"
+                    @blur="validateField('dob')"
+                  />
+                  <div v-if="validationErrors.dob" class="invalid-feedback d-block">
+                    {{ validationErrors.dob }}
                   </div>
                 </div>
-
-                <!-- Date of Birth -->
-                <div class="mb-3">
-                  <label class="form-label small fw-semibold text-secondary mb-1">ថ្ងៃខែឆ្នាំកំណើត</label>
-                  <div class="input-group">
-                    <span class="input-group-text input-icon border-end-0">
-                      <CalendarDays :size="15" class="icon-muted" />
-                    </span>
-                    <input
-                      v-model="personal.dob"
-                      type="date"
-                      class="form-control custom-input border-start-0"
-                    />
+                <div class="col-12 col-md-6">
+                  <label class="form-label small fw-bold" style="color: #2c3e50;">លេខទូរស័ព្ទ <span class="text-danger">*</span></label>
+                  <input 
+                    v-model="personal.phone"
+                    type="tel"
+                    class="form-control form-control-lg rounded-3 fs-6 custom-input"
+                    :class="{ 'is-invalid': validationErrors.phone }"
+                    placeholder="0123456789"
+                    @blur="validateField('phone')"
+                  />
+                  <div v-if="validationErrors.phone" class="invalid-feedback d-block">
+                    {{ validationErrors.phone }}
                   </div>
                 </div>
+              </div>
 
-                <!-- Gender -->
-                <div class="mb-3">
-                  <label class="form-label small fw-semibold text-secondary mb-1">ភេទ</label>
-                  <div class="d-flex gap-2">
-                    <label class="gender-option flex-fill text-center" :class="{ active: personal.gender === 1 }">
-                      <input type="radio" v-model="personal.gender" :value="1" hidden />
-                      <span class="d-block fs-5">♂</span>
-                      <span class="small">ប្រុស</span>
-                    </label>
-                    <label class="gender-option flex-fill text-center" :class="{ active: personal.gender === 2 }">
-                      <input type="radio" v-model="personal.gender" :value="2" hidden />
-                      <span class="d-block fs-5">♀</span>
-                      <span class="small">ស្រី</span>
-                    </label>
-                    <label class="gender-option flex-fill text-center" :class="{ active: personal.gender === 3 }">
-                      <input type="radio" v-model="personal.gender" :value="3" hidden />
-                      <span class="d-block fs-5">⚬</span>
-                      <span class="small">ផ្សេងទៀត</span>
+              <div class="mb-3">
+                <label class="form-label small fw-bold" style="color: #2c3e50;">ភេទ</label>
+                <div class="row g-2">
+                  <div class="col-4">
+                    <label class="gender-radio w-100 d-flex align-items-center justify-content-center gap-2 px-3 py-2 border rounded-3 position-relative" 
+                          :class="{ active: personal.gender === 'MALE' }">
+                      <input type="radio" v-model="personal.gender" value="MALE" class="position-absolute opacity-0" />
+                      <span class="fs-5">♂</span>
+                      <span class="small text-label">ប្រុស</span>
                     </label>
                   </div>
-                </div>
-
-                <!-- Phone -->
-                <div class="mb-3">
-                  <label class="form-label small fw-semibold text-secondary mb-1">លេខទូរស័ព្ទ</label>
-                  <div class="input-group">
-                    <span class="input-group-text input-icon border-end-0">
-                      <Phone :size="15" class="icon-muted" />
-                    </span>
-                    <input
-                      v-model="personal.phone"
-                      type="tel"
-                      class="form-control custom-input border-start-0"
-                      placeholder="ឧទាហរណ៍ 012 345 678"
-                    />
+                  <div class="col-4">
+                    <label class="gender-radio w-100 d-flex align-items-center justify-content-center gap-2 px-3 py-2 border rounded-3 position-relative" 
+                          :class="{ active: personal.gender === 'FEMALE' }">
+                      <input type="radio" v-model="personal.gender" value="FEMALE" class="position-absolute opacity-0" />
+                      <span class="fs-5">♀</span>
+                      <span class="small text-label">ស្រី</span>
+                    </label>
+                  </div>
+                  <div class="col-4">
+                    <label class="gender-radio w-100 d-flex align-items-center justify-content-center gap-2 px-3 py-2 border rounded-3 position-relative" 
+                          :class="{ active: personal.gender === 'OTHER' }">
+                      <input type="radio" v-model="personal.gender" value="OTHER" class="position-absolute opacity-0" />
+                      <span class="fs-5">⚬</span>
+                      <span class="small text-label">ផ្សេងទៀត</span>
+                    </label>
                   </div>
                 </div>
+              </div>
 
-                <!-- Location Fields -->
-                <div class="row g-3 mb-3">
-                  <div class="col-6">
-                    <label class="form-label small fw-semibold text-secondary mb-1">ទីក្រុងបច្ចុប្បន្ន</label>
-                    <div class="input-group">
-                      <span class="input-group-text input-icon border-end-0">
-                        <MapPin :size="15" class="icon-muted" />
-                      </span>
-                      <input
-                        v-model="personal.current_city"
-                        type="text"
-                        class="form-control custom-input border-start-0"
-                        placeholder="ទីក្រុង"
-                      />
-                    </div>
-                  </div>
-                  <div class="col-6">
-                    <label class="form-label small fw-semibold text-secondary mb-1">ទីកំណើត</label>
-                    <div class="input-group">
-                      <span class="input-group-text input-icon border-end-0">
-                        <Home :size="15" class="icon-muted" />
-                      </span>
-                      <input
-                        v-model="personal.home_town"
-                        type="text"
-                        class="form-control custom-input border-start-0"
-                        placeholder="ស្រុកកំណើត"
-                      />
-                    </div>
+              <div class="row g-3 mb-3">
+                <div class="col-12 col-md-6">
+                  <label class="form-label small fw-bold" style="color: #2c3e50;">ទីក្រុងបច្ចុប្បន្ន <span class="text-danger">*</span></label>
+                  <input 
+                    v-model="personal.current_city"
+                    type="text"
+                    class="form-control form-control-lg rounded-3 fs-6 custom-input"
+                    :class="{ 'is-invalid': validationErrors.current_city }"
+                    placeholder="ទីក្រុង"
+                    @blur="validateField('current_city')"
+                  />
+                  <div v-if="validationErrors.current_city" class="invalid-feedback d-block">
+                    {{ validationErrors.current_city }}
                   </div>
                 </div>
-
-                <!-- Portfolio Link -->
-                <div class="mb-3">
-                  <label class="form-label small fw-semibold text-secondary mb-1">ផលប័ត្រ / គេហទំព័រ</label>
-                  <div class="input-group">
-                    <span class="input-group-text input-icon border-end-0">
-                      <Globe :size="15" class="icon-muted" />
-                    </span>
-                    <input
-                      v-model="personal.portfolio_link"
-                      type="url"
-                      class="form-control custom-input border-start-0"
-                      placeholder="https://គេហទំព័ររបស់អ្នក.com"
-                    />
+                <div class="col-12 col-md-6">
+                  <label class="form-label small fw-bold" style="color: #2c3e50;">ទីកំណើត <span class="text-danger">*</span></label>
+                  <input 
+                    v-model="personal.home_town"
+                    type="text"
+                    class="form-control form-control-lg rounded-3 fs-6 custom-input"
+                    :class="{ 'is-invalid': validationErrors.home_town }"
+                    placeholder="ស្រុកកំណើត"
+                    @blur="validateField('home_town')"
+                  />
+                  <div v-if="validationErrors.home_town" class="invalid-feedback d-block">
+                    {{ validationErrors.home_town }}
                   </div>
                 </div>
+              </div>
 
-                <!-- Action Buttons -->
-                <div class="d-flex gap-2 justify-content-end pt-3 border-top border-purple mt-4">
-                  <button class="btn btn-cancel btn-sm px-4 rounded-2" @click="$router.back()">
-                    បោះបង់
-                  </button>
-                  <button class="btn btn-save btn-sm px-4 rounded-2" :disabled="savingPersonal" @click="savePersonal">
-                    <Loader2 v-if="savingPersonal" :size="14" class="spin me-1" />
-                    <Save v-else :size="14" class="me-1" />
-                    {{ savingPersonal ? 'កំពុងរក្សាទុក...' : 'រក្សាទុក' }}
-                  </button>
+              <div class="mb-4">
+                <label class="form-label small fw-bold" style="color: #2c3e50;">ផលប័ត្រ / គេហទំព័រ <span class="text-danger">*</span></label>
+                <input 
+                  v-model="personal.portfolio_link"
+                  type="url"
+                  class="form-control form-control-lg rounded-3 fs-6 custom-input"
+                  :class="{ 'is-invalid': validationErrors.portfolio_link }"
+                  placeholder="https://example.com"
+                  @blur="validateField('portfolio_link')"
+                />
+                <div v-if="validationErrors.portfolio_link" class="invalid-feedback d-block">
+                  {{ validationErrors.portfolio_link }}
                 </div>
+              </div>
+
+              <div class="d-flex flex-column-reverse flex-sm-row justify-content-sm-end gap-2 pt-3 border-top" style="border-color: #eef2f6 !important;">
+                <button class="btn-cancel btn px-4 py-2 rounded-pill" @click="$router.back()">បោះបង់</button>
+                <button class="btn-save btn px-4 py-2 rounded-pill d-inline-flex align-items-center justify-content-center gap-2 fw-semibold" :disabled="savingPersonal" @click="savePersonal">
+                  <Loader2 v-if="savingPersonal" :size="14" class="spin" />
+                  <Save v-else :size="14" />
+                  {{ savingPersonal ? 'កំពុងរក្សាទុក...' : 'រក្សាទុក' }}
+                </button>
               </div>
             </div>
           </div>
 
-          <!-- RIGHT COLUMN: Professional Information -->
-          <div class="col-lg-6">
-            <div class="card border-0 rounded-4">
-              <div class="card-header bg-white border-0 pt-4 pb-0 px-4">
-                <div class="d-flex align-items-center gap-2">
-                  <div class="icon-circle-accent rounded-circle p-1">
-                    <Briefcase :size="16" class="icon-accent" />
-                  </div>
-                  <h3 class="h6 fw-semibold mb-0" style="color: #2C2C2A;">ព័ត៌មានវិជ្ជាជីវៈ</h3>
+          <div v-if="activeTab === 'professional'" class="card border-0 rounded-4 shadow-sm overflow-hidden bg-white">
+            <div class="card-header border-bottom px-4 py-3 d-flex align-items-center gap-3" style="background-color: #fafbfc; border-color: #eef2f6 !important;">
+              <div class="header-badge accent d-flex align-items-center justify-content-center rounded-3">
+                <Briefcase :size="16" />
+              </div>
+              <div>
+                <h3 class="h6 fw-bold m-0" style="color: #1a1a2e;">ព័ត៌មានវិជ្ជាជីវៈ</h3>
+                <p class="small m-0" style="color: #6c757d;">ព័ត៌មានលម្អិតអំពីការងារ និងអាជីពរបស់អ្នក</p>
+              </div>
+            </div>
+
+            <div class="card-body p-4">
+              <div class="mb-3">
+                <label class="form-label small fw-bold" style="color: #2c3e50;">ចំណងជើងការងារ <span class="text-danger">*</span></label>
+                <input 
+                  v-model="professional.job_title"
+                  type="text"
+                  class="form-control form-control-lg rounded-3 fs-6 custom-input"
+                  :class="{ 'is-invalid': validationErrors.job_title }"
+                  placeholder="ឧ. អ្នកអភិវឌ្ឍន៍ Frontend"
+                  @blur="validateField('job_title')"
+                />
+                <div v-if="validationErrors.job_title" class="invalid-feedback d-block">
+                  {{ validationErrors.job_title }}
                 </div>
-                <p class="small text-secondary mt-1 mb-0 ms-4 ps-1">ព័ត៌មានលម្អិតអំពីការងារ និងអាជីពរបស់អ្នក</p>
               </div>
 
-              <div class="card-body p-4 pt-3">
-                <!-- Job Title -->
-                <div class="mb-3">
-                  <label class="form-label small fw-semibold text-secondary mb-1">ចំណងជើងការងារ</label>
-                  <div class="input-group">
-                    <span class="input-group-text input-icon border-end-0">
-                      <Briefcase :size="15" class="icon-muted" />
-                    </span>
-                    <input
-                      v-model="professional.job_title"
-                      type="text"
-                      class="form-control custom-input border-start-0"
-                      placeholder="ឧទាហរណ៍ អ្នកអភិវឌ្ឍន៍ Frontend"
-                    />
-                  </div>
+              <div class="mb-3">
+                <label class="form-label small fw-bold" style="color: #2c3e50;">ក្រុមហ៊ុន <span class="text-danger">*</span></label>
+                <input 
+                  v-model="professional.company_name"
+                  type="text"
+                  class="form-control form-control-lg rounded-3 fs-6 custom-input"
+                  :class="{ 'is-invalid': validationErrors.company_name }"
+                  placeholder="ឈ្មោះក្រុមហ៊ុន"
+                  @blur="validateField('company_name')"
+                />
+                <div v-if="validationErrors.company_name" class="invalid-feedback d-block">
+                  {{ validationErrors.company_name }}
                 </div>
+              </div>
 
-                <!-- Company Name -->
-                <div class="mb-3">
-                  <label class="form-label small fw-semibold text-secondary mb-1">ក្រុមហ៊ុន</label>
-                  <div class="input-group">
-                    <span class="input-group-text input-icon border-end-0">
-                      <Building2 :size="15" class="icon-muted" />
-                    </span>
-                    <input
-                      v-model="professional.company_name"
-                      type="text"
-                      class="form-control custom-input border-start-0"
-                      placeholder="ឈ្មោះក្រុមហ៊ុន"
-                    />
-                  </div>
+              <div class="mb-4">
+                <label class="form-label small fw-bold" style="color: #2c3e50;">ទំនួលខុសត្រូវ <span class="text-danger">*</span></label>
+                <textarea 
+                  v-model="professional.responsibility"
+                  rows="5"
+                  class="form-control rounded-3 fs-6 custom-input"
+                  :class="{ 'is-invalid': validationErrors.responsibility }"
+                  placeholder="ពណ៌នាអំពីទំនួលខុសត្រូវសំខាន់ៗ..."
+                  maxlength="500"
+                  @blur="validateField('responsibility')"
+                ></textarea>
+                <div class="text-end text-muted small mt-1" style="font-size: 0.7rem; color: #94a3b8 !important;">
+                  {{ professional.responsibility?.length || 0 }} / 500
                 </div>
+                <div v-if="validationErrors.responsibility" class="invalid-feedback d-block">
+                  {{ validationErrors.responsibility }}
+                </div>
+              </div>
 
-                <!-- Responsibilities -->
-                <div class="mb-3">
-                  <label class="form-label small fw-semibold text-secondary mb-1">ទំនួលខុសត្រូវ</label>
-                  <textarea
-                    v-model="professional.responsibility"
-                    class="form-control custom-input"
-                    rows="4"
-                    placeholder="ពណ៌នាអំពីទំនួលខុសត្រូវសំខាន់ៗ សមិទ្ធផល និងការងារប្រចាំថ្ងៃរបស់អ្នក..."
-                  ></textarea>
-                  <div class="text-end small text-secondary mt-1">
-                    {{ professional.responsibility?.length || 0 }} / 500
-                  </div>
-                </div>
-
-                <!-- Divider -->
-                <div class="position-relative text-center my-4">
-                  <hr class="border-purple" />
-                  <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 small text-secondary">
-                    សុវត្ថិភាព
-                  </span>
-                </div>
-
-                <!-- Change Password Section -->
-                <div class="mb-3">
-                  <label class="form-label small fw-semibold text-secondary mb-1">ពាក្យសម្ងាត់បច្ចុប្បន្ន</label>
-                  <div class="input-group">
-                    <span class="input-group-text input-icon border-end-0">
-                      <KeyRound :size="15" class="icon-muted" />
-                    </span>
-                    <input
-                      v-model="passwords.current"
-                      :type="showPwd[0] ? 'text' : 'password'"
-                      class="form-control custom-input border-start-0"
-                      placeholder="បញ្ចូលពាក្យសម្ងាត់បច្ចុប្បន្ន"
-                    />
-                    <button class="btn btn-eye" type="button" @click="showPwd[0] = !showPwd[0]">
-                      <Eye v-if="!showPwd[0]" :size="14" />
-                      <EyeOff v-else :size="14" />
-                    </button>
-                  </div>
-                </div>
-
-                <div class="row g-3 mb-3">
-                  <div class="col-6">
-                    <label class="form-label small fw-semibold text-secondary mb-1">ពាក្យសម្ងាត់ថ្មី</label>
-                    <div class="input-group">
-                      <span class="input-group-text input-icon border-end-0">
-                        <KeyRound :size="15" class="icon-muted" />
-                      </span>
-                      <input
-                        v-model="passwords.password"
-                        :type="showPwd[1] ? 'text' : 'password'"
-                        class="form-control custom-input border-start-0"
-                        placeholder="ពាក្យសម្ងាត់ថ្មី"
-                      />
-                      <button class="btn btn-eye" type="button" @click="showPwd[1] = !showPwd[1]">
-                        <Eye v-if="!showPwd[1]" :size="14" />
-                        <EyeOff v-else :size="14" />
-                      </button>
-                    </div>
-                  </div>
-                  <div class="col-6">
-                    <label class="form-label small fw-semibold text-secondary mb-1">បញ្ជាក់ពាក្យសម្ងាត់</label>
-                    <div class="input-group">
-                      <span class="input-group-text input-icon border-end-0">
-                        <KeyRound :size="15" class="icon-muted" />
-                      </span>
-                      <input
-                        v-model="passwords.password_confirmation"
-                        :type="showPwd[2] ? 'text' : 'password'"
-                        class="form-control custom-input border-start-0"
-                        placeholder="បញ្ជាក់ពាក្យសម្ងាត់ថ្មី"
-                      />
-                      <button class="btn btn-eye" type="button" @click="showPwd[2] = !showPwd[2]">
-                        <Eye v-if="!showPwd[2]" :size="14" />
-                        <EyeOff v-else :size="14" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="d-flex gap-2 justify-content-end pt-3 border-top border-purple">
-                  <button
-                    class="btn btn-pwd btn-sm px-3 rounded-2"
-                    :disabled="!passwords.current"
-                    @click="savePassword"
-                  >
-                    <KeyRound :size="13" class="me-1" /> ប្ដូរពាក្យសម្ងាត់
-                  </button>
-                  <button class="btn btn-save btn-sm px-4 rounded-2" :disabled="savingPro" @click="saveProfessional">
-                    <Loader2 v-if="savingPro" :size="14" class="spin me-1" />
-                    <Save v-else :size="14" class="me-1" />
-                    {{ savingPro ? 'កំពុងរក្សាទុក...' : 'រក្សាទុក' }}
-                  </button>
-                </div>
+              <div class="d-flex flex-column-reverse flex-sm-row justify-content-sm-end gap-2 pt-3 border-top" style="border-color: #eef2f6 !important;">
+                <button class="btn-cancel btn px-4 py-2 rounded-pill" @click="$router.back()">បោះបង់</button>
+                <button class="btn-save btn px-4 py-2 rounded-pill d-inline-flex align-items-center justify-content-center gap-2 fw-semibold" :disabled="savingPro" @click="saveProfessional">
+                  <Loader2 v-if="savingPro" :size="14" class="spin" />
+                  <Save v-else :size="14" />
+                  {{ savingPro ? 'កំពុងរក្សាទុក...' : 'រក្សាទុក' }}
+                </button>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Toast Notification -->
       <Transition name="toast">
-        <div v-if="toast.show" class="toast-notification position-fixed bottom-0 start-50 translate-middle-x mb-3 z-3" :class="toast.type">
+        <div v-if="toast.show" 
+             class="toast-notification position-fixed bottom-0 start-50 translate-middle-x mb-4 px-4 py-2 rounded-pill d-flex align-items-center gap-2 text-white shadow-lg" 
+             :class="toast.type"
+             style="z-index: 1050; font-size: 0.85rem;">
           <CheckCircle2 v-if="toast.type === 'success'" :size="16" />
           <XCircle v-else :size="16" />
-          <span class="small fw-semibold">{{ toast.msg }}</span>
+          <span>{{ toast.msg }}</span>
         </div>
       </Transition>
     </div>
@@ -326,11 +274,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue"
+import { ref, onMounted, reactive } from "vue"
 import {
-  ArrowLeft, UserCog, User, CalendarDays, Phone,
-  MapPin, Home, Globe, Briefcase, Building2, Save,
-  Loader2, CheckCircle2, XCircle, KeyRound, Eye, EyeOff
+  ArrowLeft, UserCog, User, Briefcase, Save, Loader2, CheckCircle2, XCircle
 } from "lucide-vue-next"
 import { useAuthStores } from "@/stores/auth"
 import { useProfileStore } from "@/stores/profile"
@@ -339,11 +285,12 @@ import DashboardLayout from '@/layouts/DashboardLayout.vue'
 const auth = useAuthStores()
 const profileStore = useProfileStore()
 
-// State
+const activeTab = ref('personal')
+
 const personal = ref({
   full_name: "",
   dob: "",
-  gender: 1,
+  gender: "MALE",
   phone: "",
   current_city: "",
   home_town: "",
@@ -356,45 +303,131 @@ const professional = ref({
   responsibility: "",
 })
 
-const passwords = ref({
-  current: "",
-  password: "",
-  password_confirmation: "",
-})
-
-const showPwd = ref([false, false, false])
 const savingPersonal = ref(false)
 const savingPro = ref(false)
 const toast = ref({ show: false, msg: "", type: "success" })
 
-// Load existing data
+const validationErrors = reactive({
+  full_name: "",
+  dob: "",
+  phone: "",
+  current_city: "",
+  home_town: "",
+  portfolio_link: "",
+  job_title: "",
+  company_name: "",
+  responsibility: ""
+})
+
+function showToast(msg, type = "success") {
+  toast.value = { show: true, msg, type }
+  setTimeout(() => { toast.value.show = false }, 3000)
+}
+
+// ── Validators ───────────────────────────────────────────────
+
+function validateFullName(name) {
+  if (!name || name.trim() === "") return "សូមបញ្ចូលឈ្មោះពេញរបស់អ្នក"
+  return ""
+}
+
+function validateDOB(dob) {
+  if (!dob || dob.trim() === "") return "សូមបញ្ចូលថ្ងៃខែឆ្នាំកំណើត"
+  return ""
+}
+
+function validatePhone(phone) {
+  if (!phone || phone.trim() === "") return "សូមបញ្ចូលលេខទូរស័ព្ទ"
+  return ""
+}
+
+function validateCity(city) {
+  if (!city || city.trim() === "") return "សូមបញ្ចូលទីក្រុងបច្ចុប្បន្ន"
+  return ""
+}
+
+function validateHomeTown(town) {
+  if (!town || town.trim() === "") return "សូមបញ្ចូលទីកំណើត"
+  return ""
+}
+
+function validatePortfolioLink(url) {
+  if (!url || url.trim() === "") return "សូមបញ្ចូលផលប័ត្រ ឬ URL គេហទំព័រ"
+  return ""
+}
+
+function validateJobTitle(title) {
+  if (!title || title.trim() === "") return "សូមបញ្ចូលចំណងជើងការងារ"
+  return ""
+}
+
+function validateCompanyName(name) {
+  if (!name || name.trim() === "") return "សូមបញ្ចូលឈ្មោះក្រុមហ៊ុន"
+  return ""
+}
+
+function validateResponsibility(resp) {
+  if (!resp || resp.trim() === "") return "សូមបញ្ចូលទំនួលខុសត្រូវ"
+  return ""
+}
+
+function validateField(fieldName) {
+  switch (fieldName) {
+    case 'full_name':      validationErrors.full_name      = validateFullName(personal.value.full_name); break
+    case 'dob':            validationErrors.dob            = validateDOB(personal.value.dob); break
+    case 'phone':          validationErrors.phone          = validatePhone(personal.value.phone); break
+    case 'current_city':   validationErrors.current_city   = validateCity(personal.value.current_city); break
+    case 'home_town':      validationErrors.home_town      = validateHomeTown(personal.value.home_town); break
+    case 'portfolio_link': validationErrors.portfolio_link = validatePortfolioLink(personal.value.portfolio_link); break
+    case 'job_title':      validationErrors.job_title      = validateJobTitle(professional.value.job_title); break
+    case 'company_name':   validationErrors.company_name   = validateCompanyName(professional.value.company_name); break
+    case 'responsibility': validationErrors.responsibility = validateResponsibility(professional.value.responsibility); break
+  }
+}
+
+function validateAllPersonal() {
+  ['full_name', 'dob', 'phone', 'current_city', 'home_town', 'portfolio_link'].forEach(f => validateField(f))
+  return !['full_name', 'dob', 'phone', 'current_city', 'home_town', 'portfolio_link'].some(f => validationErrors[f])
+}
+
+function validateAllProfessional() {
+  ['job_title', 'company_name', 'responsibility'].forEach(f => validateField(f))
+  return !['job_title', 'company_name', 'responsibility'].some(f => validationErrors[f])
+}
+
+
 onMounted(async () => {
   try {
     const res = await auth.profile()
     if (res.data.result) {
       const d = res.data.data
       personal.value = {
-        full_name: d.full_name ?? "",
-        dob: d.dob?.split("T")[0] ?? "",
-        gender: d.gender ?? 1,
-        phone: d.phone ?? "",
-        current_city: d.current_city ?? "",
-        home_town: d.home_town ?? "",
+        full_name:      d.full_name ?? "",
+        dob:            d.dob?.split("T")[0] ?? "",
+        gender:         d.gender ?? "MALE",
+        phone:          d.phone ?? "",
+        current_city:   d.current_city ?? "",
+        home_town:      d.home_town ?? "",
         portfolio_link: d.portfolio_link ?? "",
       }
       professional.value = {
-        job_title: d.professional?.job_title ?? "",
-        company_name: d.professional?.company_name ?? "",
+        job_title:      d.professional?.job_title ?? "",
+        company_name:   d.professional?.company_name ?? "",
         responsibility: d.professional?.responsibility ?? "",
       }
     }
   } catch (e) {
     console.error("Failed to load profile", e)
+    showToast("មិនអាចផ្ទុកទិន្នន័យប្រវត្តិរូបបានទេ", "error")
   }
 })
 
-// Save personal info
+
 async function savePersonal() {
+  if (!validateAllPersonal()) {
+    showToast("សូមបំពេញព័ត៌មានទាំងអស់ឱ្យបានត្រឹមត្រូវ", "error")
+    return
+  }
   savingPersonal.value = true
   try {
     const res = await profileStore.updatePersonalInfo(personal.value)
@@ -405,14 +438,18 @@ async function savePersonal() {
       showToast(res.data.message || "មិនអាចរក្សាទុកបានទេ", "error")
     }
   } catch (e) {
+    console.error("Save error:", e)
     showToast("មានបញ្ហាកើតឡើង សូមព្យាយាមម្តងទៀត", "error")
   } finally {
     savingPersonal.value = false
   }
 }
 
-// Save professional info
 async function saveProfessional() {
+  if (!validateAllProfessional()) {
+    showToast("សូមបំពេញព័ត៌មានទាំងអស់ឱ្យបានត្រឹមត្រូវ", "error")
+    return
+  }
   savingPro.value = true
   try {
     const res = await profileStore.updateProfessional(professional.value)
@@ -423,292 +460,153 @@ async function saveProfessional() {
       showToast(res.data.message || "មិនអាចរក្សាទុកបានទេ", "error")
     }
   } catch (e) {
+    console.error("Save error:", e)
     showToast("មានបញ្ហាកើតឡើង សូមព្យាយាមម្តងទៀត", "error")
   } finally {
     savingPro.value = false
   }
 }
-
-// Change password
-async function savePassword() {
-  if (passwords.value.password !== passwords.value.password_confirmation) {
-    showToast("ពាក្យសម្ងាត់ថ្មីមិនត្រូវគ្នាទេ", "error")
-    return
-  }
-
-  if (passwords.value.password && passwords.value.password.length < 6) {
-    showToast("ពាក្យសម្ងាត់ត្រូវមានយ៉ាងហោចណាស់ 6 តួអក្សរ", "error")
-    return
-  }
-
-  try {
-    const res = await profileStore.changePassword({
-      current_password: passwords.value.current,
-      password: passwords.value.password,
-      password_confirmation: passwords.value.password_confirmation,
-    })
-    if (res.data.result) {
-      showToast("ពាក្យសម្ងាត់ត្រូវបានប្ដូរដោយជោគជ័យ!", "success")
-      passwords.value = { current: "", password: "", password_confirmation: "" }
-    } else {
-      showToast(res.data.message || "មិនអាចប្ដូរពាក្យសម្ងាត់បានទេ", "error")
-    }
-  } catch (e) {
-    showToast("ពាក្យសម្ងាត់បច្ចុប្បន្នមិនត្រឹមត្រូវ", "error")
-  }
-}
-
-// Toast helper
-function showToast(msg, type = "success") {
-  toast.value = { show: true, msg, type }
-  setTimeout(() => {
-    toast.value.show = false
-  }, 3000)
-}
 </script>
 
 <style scoped>
-/* ── PAGE BACKGROUND ─────────────────────── */
-.edit-profile-page {
-  background: #f3f4f6;
+.back-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  color: #495057;
+  transition: all 0.2s;
 }
-
-/* ── COLOR TOKENS ────────────────────────── */
-/* --purple-main : #534AB7  (buttons, active states)  */
-/* --purple-dark : #3C3489  (hover)                   */
-/* --purple-light: #7F77DD  (icons, accents)          */
-/* --purple-tint : #EEEDFE  (backgrounds, borders)    */
-/* --border-color: rgba(83, 74, 183, 0.15)            */
-
-/* ── HEADER BORDER ───────────────────────── */
-.border-purple {
-  border-color: rgba(83, 74, 183, 0.2) !important;
-}
-
-/* ── CARD ────────────────────────────────── */
-.card {
-  background: #fff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  transition: box-shadow 0.2s;
-  margin-bottom: 20px;
-}
-
-.card:hover {
-  box-shadow: 0 4px 16px rgba(83, 74, 183, 0.12);
-}
-
-/* ── ICON CIRCLES ────────────────────────── */
-.icon-circle-primary {
-  background: #EEEDFE;
-  border-radius: 10px;
-}
-
-.icon-primary {
+.back-btn:hover {
+  background: #f8f9fa;
+  border-color: #534AB7;
   color: #534AB7;
 }
 
-.icon-circle-accent {
+.header-icon {
+  width: 52px;
+  height: 52px;
+  background: linear-gradient(135deg, #EEEDFE 0%, #E8E6FD 100%);
+  color: #534AB7;
+}
+
+.tabs {
+  background: white;
+  border-radius: 60px;
+}
+.tab-btn {
+  background: transparent;
+  color: #6c757d;
+  transition: all 0.2s;
+}
+.tab-btn:hover {
+  color: #534AB7;
+  background: #f8f9fa;
+}
+.tab-btn.active {
+  background: #534AB7;
+  color: white;
+  box-shadow: 0 4px 12px rgba(83, 74, 183, 0.25);
+}
+
+.header-badge.primary {
+  width: 36px;
+  height: 36px;
   background: #EEEDFE;
-  border-radius: 10px;
+  color: #534AB7;
 }
-
-.icon-accent {
-  color: #7F77DD;
-}
-
-/* ── INPUT STYLES ────────────────────────── */
-.input-icon {
-  background-color: #f3f4f6;
-  border-color: #e5e7eb;
-}
-
-.icon-muted {
-  color: #9ca3af;
+.header-badge.accent {
+  width: 36px;
+  height: 36px;
+  background: #FFF3E0;
+  color: #ED8936;
 }
 
 .custom-input {
-  background-color: #f3f4f6;
-  border-color: #e5e7eb;
-  color: #2C2C2A;
-  transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
-}
-
-.custom-input:focus {
-  background-color: #fff;
-  border-color: #7F77DD;
-  box-shadow: 0 0 0 0.15rem rgba(83, 74, 183, 0.12);
-  color: #2C2C2A;
-}
-
-.input-group:focus-within .input-icon {
-  border-color: #7F77DD;
-  background-color: #EEEDFE;
-}
-
-.input-group:focus-within .icon-muted {
-  color: #534AB7;
-}
-
-/* ── EYE BUTTON ──────────────────────────── */
-.btn-eye {
-  background-color: #f3f4f6;
-  border-color: #e5e7eb;
-  border-left: none;
-  color: #9ca3af;
-  transition: all 0.15s;
-}
-
-.btn-eye:hover {
-  background-color: #EEEDFE;
-  color: #534AB7;
-  border-color: #7F77DD;
-}
-
-/* ── GENDER OPTIONS ──────────────────────── */
-.gender-option {
-  cursor: pointer;
-  padding: 8px 12px;
-  border: 1.5px solid #e5e7eb;
-  border-radius: 10px;
-  background: #fff;
+  border: 1.5px solid #e2e8f0;
+  background: #fefefe;
   transition: all 0.2s;
-  color: #6b7280;
 }
-
-.gender-option:hover {
-  border-color: #7F77DD;
-  background: #EEEDFE;
-  color: #534AB7;
-}
-
-.gender-option.active {
+.custom-input:focus {
+  outline: none;
   border-color: #534AB7;
+  box-shadow: 0 0 0 3px rgba(83, 74, 183, 0.1);
+}
+.custom-input.is-invalid {
+  border-color: #dc2626;
+}
+.custom-input.is-invalid:focus {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+.gender-radio {
+  background: #f8f9fa;
+  border: 1.5px solid #e2e8f0 !important;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.gender-radio .text-label {
+  color: #6c757d;
+}
+.gender-radio:hover,
+.gender-radio.active {
+  border-color: #534AB7 !important;
   background: #EEEDFE;
+}
+.gender-radio.active .text-label {
   color: #534AB7;
-  font-weight: 600;
-}
-
-/* ── BUTTONS ─────────────────────────────── */
-.btn-save {
-  background: #534AB7;
-  color: #EEEDFE;
-  border: none;
-  font-weight: 600;
-  font-family: inherit;
-  transition: background 0.15s, transform 0.1s;
-}
-
-.btn-save:hover:not(:disabled) {
-  background: #3C3489;
-}
-
-.btn-save:active:not(:disabled) {
-  transform: scale(0.98);
-}
-
-.btn-save:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  font-weight: 500;
 }
 
 .btn-cancel {
-  background: #f3f4f6;
-  color: #6b7280;
-  border: 1px solid #e5e7eb;
-  font-family: inherit;
-  transition: all 0.15s;
+  background: #f8f9fa;
+  border: 1px solid #e2e8f0;
+  color: #6c757d;
+  transition: all 0.2s;
 }
-
 .btn-cancel:hover {
-  background: #e5e7eb;
-  color: #374151;
+  background: #e9ecef;
+  border-color: #ced4da;
 }
 
-.btn-pwd {
-  background: #EEEDFE;
-  color: #534AB7;
-  border: 1px solid rgba(83, 74, 183, 0.3);
-  font-weight: 600;
-  font-family: inherit;
-  transition: all 0.15s;
-}
-
-.btn-pwd:hover:not(:disabled) {
+.btn-save {
   background: #534AB7;
-  color: #fff;
-  border-color: #534AB7;
+  color: white;
+  border: none;
+  transition: all 0.2s;
+}
+.btn-save:hover:not(:disabled) {
+  background: #3C3489;
+  transform: translateY(-1px);
+}
+.btn-save:disabled {
+  opacity: 0.6;
 }
 
-.btn-pwd:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
+.invalid-feedback {
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  color: #dc2626;
 }
 
-/* ── TOAST ───────────────────────────────── */
-.toast-notification {
-  background: #534AB7;
-  color: #fff;
-  padding: 10px 24px;
-  border-radius: 12px;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  box-shadow: 0 8px 24px rgba(83, 74, 183, 0.25);
-  z-index: 1060;
-}
+.toast-notification.success { background: #534AB7; }
+.toast-notification.error   { background: #dc2626; }
 
-.toast-notification.success {
-  background: #534AB7;
-}
-
-.toast-notification.error {
-  background: #dc2626;
-}
-
-/* ── SPINNER ─────────────────────────────── */
 .spin {
   animation: spin 0.7s linear infinite;
 }
-
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-/* ── TOAST TRANSITION ────────────────────── */
 .toast-enter-active,
 .toast-leave-active {
   transition: all 0.25s ease;
 }
-
 .toast-enter-from,
 .toast-leave-to {
   opacity: 0;
-  transform: translateX(-50%) translateY(10px);
-}
-
-/* ── RESPONSIVE ──────────────────────────── */
-@media (max-width: 768px) {
-  .container {
-    padding-left: 16px;
-    padding-right: 16px;
-  }
-
-  .gender-option {
-    font-size: 0.75rem;
-  }
-
-  .btn-sm {
-    font-size: 0.75rem;
-  }
-}
-
-@media (max-width: 576px) {
-  .gender-option span:first-child {
-    font-size: 1.1rem;
-  }
-
-  .gender-option span.small {
-    font-size: 0.7rem;
-  }
+  transform: translate(-50%, 10px) !important;
 }
 </style>
